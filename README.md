@@ -1,213 +1,187 @@
 # Curriculum Revision Management System (CRMS)
 
-[![CI Test Suite](https://github.com/utkarshtyagi-253/curriculum-revision-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/utkarshtyagi-253/curriculum-revision-management-system/actions/workflows/ci.yml)
-[![Course](https://img.shields.io/badge/Course-CS314%20Software%20Development%20Laboratory-blue.svg)](https://lnmiit.ac.in)
-[![Institution](https://img.shields.io/badge/Institution-LNMIIT%20Jaipur-orange.svg)](https://lnmiit.ac.in)
-[![Team ID](https://img.shields.io/badge/Team-T017-green.svg)](#team-details)
-[![Release](https://img.shields.io/badge/Release-Assignment%2001%20%26%2002%20Baseline-purple.svg)](#assignments-deliverables)
+[![Python CI](https://github.com/utkarshtyagi-253/curriculum-revision-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/utkarshtyagi-253/curriculum-revision-management-system/actions/workflows/ci.yml)
+![Course](https://img.shields.io/badge/Course-CS314-blue)
+![Team](https://img.shields.io/badge/Team-T017-green)
+![Assignments](https://img.shields.io/badge/Assignments-01%20through%2005-purple)
 
-> A controlled, transparent, role-based platform for proposing, reviewing, approving, versioning, and implementing curriculum changes across academic units.
+A role-based platform for proposing, reviewing, approving, versioning and implementing academic curriculum changes. This repository contains documentation through **Assignment 05**, the **React 19 + Express + SQLite application**, and the earlier **Python/FastAPI prototype**.
 
----
+## Team details
 
-## 👥 Team Details (Team T017)
+**Course:** CS314 — Software Development Laboratory, The LNM Institute of Information Technology, Jaipur
+**Team ID:** T017
+**Development model:** Agile — Iterative and Incremental Development
 
-| Name | Roll Number | Primary Assignment 1 & 2 Responsibilities |
-|---|---|---|
-| **Utkarsh** | **24UCC096** | **Requirements & Analysis Lead** — User classes, core proposal, review and access-control functional requirements, business rules, validation review. |
-| **Piyush** | **24UCC097** | **Workflow & Architecture Lead** — System-context and proposal-lifecycle modeling, workflow, versioning, data requirements, detailed use-case behavior. |
-| **Yash** | **24UCC099** | **Documentation & Traceability Lead** — Major use-case catalogue, user stories, acceptance criteria, MoSCoW prioritization, traceability mapping, SRS baseline/versioning. |
-| **Mehul** | **24UCC100** | **Quality & NFR Lead** — Performance, security, usability, reliability, auditability requirements, quality examples, change-management rules, quality checks. |
+| Member | Roll number | Assignment 01–02 responsibility baseline |
+| --- | --- | --- |
+| Utkarsh | 24UCC096 | Requirements and analysis, access control and business rules |
+| Piyush | 24UCC097 | Workflow, architecture, versioning and data requirements |
+| Yash | 24UCC099 | Documentation, use cases, acceptance criteria and traceability |
+| Mehul | 24UCC100 | Quality, security, performance, usability and auditability |
 
-* **Development Model:** Agile — Iterative and Incremental Development
-* **Course:** CS314: Software Development Laboratory, The LNM Institute of Information Technology, Jaipur
+## Assignment deliverables through Assignment 05
 
----
+| Assignment | Focus | Deliverable |
+| --- | --- | --- |
+| **01** | Project identification and initial definition | [Project Definition](docs/assignment-01/Project-Definition.md) |
+| **02** | Requirements specification and traceability | [SRS v1.0](docs/requirements/SRS-v1.0.md) · [System Context](docs/requirements/diagrams/System-Context.png) |
+| **03** | Scenarios, use-case and activity modelling | [Scenario, Use Case and Activity Modelling](docs/assignment-03/Scenario-Use-Case-Activity-Modelling.md) |
+| **04** | Classes, object diagram and relationships | [Classes, Object Diagram and Relationships](docs/assignment-04/Classes-Object-Diagram-Relationships.md) |
+| **05** | Collaboration/communication, state and component modelling | [Collaboration, State and Component Modelling](docs/assignment-05/Collaboration-State-Component-Modelling.md) · [Assignment 05 PDF](T017_assignment05.pdf) |
 
-## 📑 Assignments Deliverables (Up to Assignment 02)
+The modelling documents carry forward **UC-005 — Submit Proposal**, **UC-009 — Review Proposal and Record Feedback**, and **UC-015 — Record Committee Decision**. Assignment 05 describes their collaborating objects, proposal state transitions and component responsibilities.
 
-| Deliverable | Path / Document | Status |
-|---|---|---|
-| **Lab Assignment 1: Project Identification & Initial Definition** | [docs/assignment-01/Project-Definition.md](docs/assignment-01/Project-Definition.md) | ✅ Complete |
-| **Lab Assignment 2: Requirements Specification (SRS v1.0)** | [docs/requirements/SRS-v1.0.md](docs/requirements/SRS-v1.0.md) | ✅ Complete |
-| **System Context Model** | [docs/requirements/diagrams/System-Context.png](docs/requirements/diagrams/System-Context.png) | ✅ Complete |
-| **Official Assignment 1 PDF** | [docs/pdf/T017_Assignment01.pdf](docs/pdf/T017_Assignment01.pdf) | ✅ Archived |
-| **Official Assignment 2 PDF** | [docs/pdf/T017_ASSIGNMENT02.pdf](docs/pdf/T017_ASSIGNMENT02.pdf) | ✅ Archived |
-| **Official Combined Assignment 1 & 2 PDF** | [docs/pdf/T017_CS314_Assignment_01_02_Complete.pdf](docs/pdf/T017_CS314_Assignment_01_02_Complete.pdf) | ✅ Archived |
-| **Functional Prototype Implementation & Test Suite** | [src/](src/) & [	ests/](tests/) | ✅ Verified |
+Earlier submission PDFs: [Assignment 01](docs/pdf/T017_Assignment01.pdf), [Assignment 02](docs/pdf/T017_ASSIGNMENT02.pdf), and [Combined Assignments 01–02](docs/pdf/T017_CS314_Assignment_01_02_Complete.pdf).
 
----
+## Problem and stakeholders
 
-## 🎯 Executive Summary & Problem Context
-
-Academic curriculum revisions involve multiple stakeholders, documents, review stages, and formal committee approvals. In legacy setups, these activities rely on fragmented email threads, meeting minutes, spreadsheets, and physical paperwork. This causes:
-- Ambiguity regarding the latest active proposal version.
-- Overlooked reviewer comments and lost academic rationale.
-- Lack of auditability and unclear decision ownership.
-- Implementation delays after formal approval.
-
-**The Curriculum Revision Management System (CRMS)** centralizes the entire lifecycle into an authoritative, role-based workflow platform. It preserves proposal context, enforces sequential committee reviews, ensures immutable version snapshotting, and tracks post-approval academic records.
-
----
-
-## 🏛️ System Context & Stakeholder Matrix
+Curriculum revisions often rely on scattered email threads, spreadsheets, meeting minutes and paper records. CRMS centralizes proposal versions, feedback, decision ownership and implementation tracking.
 
 ![System Context](docs/requirements/diagrams/System-Context.png)
 
-### Key Stakeholders & Permissions
+| Stakeholder | Responsibility |
+| --- | --- |
+| Faculty Proposer | Create drafts, attach documents, submit and revise returned proposals |
+| Programme Coordinator / HOD | Perform department review and recommend or return proposals |
+| DCC / Board of Studies | Evaluate academic merit and record recommendations, conditions and meeting context |
+| Academic Office | Perform academic scrutiny, forward proposals and track implementation milestones |
+| Senate / Academic Council | Record final approval or rejection |
+| System Administrator | View workflow configuration, manage departments/courses and inspect audits |
+| Invited students, alumni and industry | Provide contextual feedback in the requirements model; external onboarding is outside the current implementation |
 
-1. **Faculty Proposer:** Creates, drafts, edits, submits proposals (new course, course modification, discontinuation, program structure changes), and resubmits returned revisions.
-2. **Programme Coordinator / HOD:** Conducts initial department-level scrutiny, validates completeness, records recommendations, or returns proposals for revision with mandatory reasons.
-3. **Department Curriculum Committee (DCC) / Board of Studies (BOS):** Evaluates academic merit, attaches meeting references, records committee feedback, conditional approvals, or recommendations.
-4. **Invited Stakeholders (Students, Alumni, Industry):** Submit invited contextual feedback on syllabus relevance without decision authority.
-5. **Academic Office:** Verifies institutional compliance, schedules formal review bodies, records official decisions, and tracks post-approval implementation milestones.
-6. **Senate / Academic Council:** Highest institutional authority granting final approval or rejection.
-7. **System Administrator:** Configures workflow stages, manages academic master data (departments, programs, courses), and audits platform operations.
+## Assignment 05 application
 
----
+The React application provides:
 
-## ⚙️ Core System Architecture & Features
+- JWT authentication and server-side role/stage authorization.
+- Draft saving, academic-field validation and PDF, text or DOCX attachments up to 5 MB.
+- Immutable submission/resubmission snapshots and field comparison between versions.
+- Pending reviews, feedback, forwarding and return/rejection with required reasons.
+- Committee decisions with meeting reference/date and conditions for conditional approval.
+- Senate-only final approval, with repeated or stale decisions blocked.
+- Implementation milestones with evidence required for completion.
+- Notifications with persistent read status, proposal timelines, decision history and audit views.
+- Administrator department/course management and read-only workflow configuration.
 
-### 1. Functional Requirements Coverage (FR-001 to FR-048)
-- **Authentication & RBAC (FR-001 — FR-006):** JWT-based secure sessions, server-side permission validation, obscured credential error messaging.
-- **Academic Master Data & Workflows (FR-007 — FR-008):** Configurable stages, responsible roles, and department structures.
-- **Proposal Lifecycle & Drafts (FR-009 — FR-017):** Draft saving, comprehensive field validation (rationale, prerequisites, credits, syllabus changes, resource needs, implementation session).
-- **Review & Routing (FR-018 — FR-024):** Sequential review routing, non-bypassable workflow enforcement, reason-required returns.
-- **Immutable Version History (FR-025 — FR-027):** Automated version snapshotting on submission and resubmission; automated field-by-field diff comparison.
-- **Committee Decisions (FR-031 — FR-035):** Formal decisions (Recommendation, Conditional Approval, Return, Rejection, Final Approval) with meeting context and conditions.
-- **Auditing & Timelines (FR-045 — FR-048):** Immutable audit event logging with actor, timestamp, action type, and status.
+### Workflow demonstration
 
-### 2. Business Rules Enforced
-- **BR-001 / BR-002:** Strict role-based permissions; admin-only configuration.
-- **BR-003:** Proposal owner can modify content **only** in Draft or Returned for Revision status.
-- **BR-004:** Incomplete proposals are rejected at submission; all mandatory fields must be validated.
-- **BR-005 / BR-006:** Every submission/resubmission seals an immutable snapshot (ersionNo), preserving all earlier versions.
-- **BR-007 / BR-010:** Review actions restricted to the designated role for the active stage.
-- **BR-008:** Return for Revision and Rejection require an explicit written reason.
-- **BR-009:** Conditional Approval requires explicitly recorded condition(s).
-- **BR-017:** Audit entries are immutable and system-generated.
+1. **Faculty** creates a proposal, completes academic fields, attaches documents and submits. A version is sealed and department review is assigned.
+2. **HOD** recommends it or returns it with a reason. Faculty can edit and resubmit returned proposals, creating another immutable version.
+3. **DCC** records a recommendation or conditional approval with meeting context, or returns/rejects it.
+4. **Academic Office** reviews and forwards it to Senate.
+5. **Senate** records final approval or rejection.
+6. **Academic Office** tracks implementation milestones for approved proposals.
 
----
+### Architecture
 
-## 🗄️ Domain Data Model (20 Core Entities)
+The React/Vite client calls `/api` through the development proxy. Express routes delegate to `ProposalService`, `WorkflowService` and `CommitteeService`. SQLite persists demo data, including document data URLs. Transactions keep snapshots, decisions, pending actions, notifications and audits consistent when a transition fails.
 
-`
-User (16.1) <--- UserRole (16.3) ---> Role (16.2)
-   |
-Department (16.4) <--- Programme (16.5) / Course (16.6)
-   |
-CurriculumProposal (16.8)
-   ├── ProposalVersion (16.9) [1..*] (Immutable Snapshots)
-   ├── SupportingDocument (16.10) [0..*]
-   ├── ReviewAction (16.13) [0..*]
-   ├── Decision (16.17) [0..*] <--- CommitteeMeeting (16.16)
-   └── ImplementationMilestone (16.19) [0..*]
+The broader SRS domain model covers users/roles, academic master data, proposals, versions, documents, workflow stages, feedback, meetings/decisions, notifications, milestones and audit events. Assignment 04 describes class/object relationships; Assignment 05 describes collaboration, states and components.
 
-WorkflowDefinition (16.11) ---> WorkflowStage (16.12) ---> PendingAction (16.13)
-Notification (16.18) | AuditEvent (16.20) | Feedback (16.15)
-`
+## Run the React application locally
 
----
+**Prerequisites:** Node.js 22 or newer, npm and Git.
 
-## 🚀 Prototype Quick Start & Installation
-
-### 1. Prerequisites
-- Python 3.10+ (Tested on Python 3.11, 3.12, 3.13)
-- Git
-
-### 2. Installation
-`ash
+```powershell
 git clone https://github.com/utkarshtyagi-253/curriculum-revision-management-system.git
 cd curriculum-revision-management-system
+npm install --prefix server
+npm install --prefix client
+npm start --prefix server
+```
 
-# Install dependencies
+In a second terminal, from the repository root:
+
+```powershell
+npm run dev --prefix client
+```
+
+Open **http://localhost:5173**. The API runs on **port 8000**; stop the Python server first if it uses that port. An empty database is seeded automatically, and existing data is preserved.
+
+To deliberately reset **all application data** to the demo baseline:
+
+```powershell
+npm run seed --prefix server
+```
+
+### Demo accounts
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Faculty | faculty@lnmiit.ac.in | Faculty@123 |
+| HOD | hod@lnmiit.ac.in | Hod@123 |
+| DCC | dcc@lnmiit.ac.in | Dcc@123 |
+| Academic Office | academics@lnmiit.ac.in | Academic@123 |
+| Senate | senate@lnmiit.ac.in | Senate@123 |
+| Administrator | admin@lnmiit.ac.in | Admin@123 |
+
+Quick-login buttons use these credentials for academic demonstration.
+
+### Build and validation
+
+```powershell
+npm run build --prefix client
+npm test --prefix server
+```
+
+Server tests use an in-memory database without resetting development data. Regression coverage includes snapshot preservation on resubmission, partial draft saves, invalid-action rollback, role/stage checks, final approval, document bytes and milestone evidence validation.
+
+The existing GitHub Actions workflow runs the **Python pytest suite**. Run the React build and Node tests separately using the commands above.
+
+See [REACT-README.md](REACT-README.md) for the detailed application guide and [DEPLOYMENT.md](DEPLOYMENT.md) for Render deployment. The free-demo configuration uses ephemeral storage, so online data can be lost after restarts or redeployment.
+
+## Earlier Python/FastAPI prototype
+
+Use Python 3.10+ and run from the repository root:
+
+```powershell
 pip install -r requirements.txt
-`
-
-### 3. Initialize & Seed Database
-`ash
 python scripts/seed_data.py
-`
-
-### 4. Run the API Server
-`ash
 uvicorn src.main:app --reload --port 8000
-`
-- Interactive Swagger UI: **http://127.0.0.1:8000/docs**
-- OpenAPI Specification: **http://127.0.0.1:8000/openapi.json**
+```
 
-### 5. Run Automated Tests
-`ash
+Swagger UI: **http://127.0.0.1:8000/docs**
+OpenAPI specification: **http://127.0.0.1:8000/openapi.json**
+
+```powershell
 pytest -v
-`
+```
 
----
+## Repository structure
 
-## 🧪 Pre-Configured Test Accounts (Seed Data)
-
-| Role | Email | Password | Responsible Workflow Stage |
-|---|---|---|---|
-| **System Administrator** | dmin@lnmiit.ac.in | Admin@123 | Master Data & Configuration |
-| **Faculty Proposer** | aculty@lnmiit.ac.in | Faculty@123 | Proposal Drafting & Submission |
-| **Programme Coordinator / HOD** | hod@lnmiit.ac.in | Hod@123 | Department Review |
-| **DCC Reviewer** | dcc@lnmiit.ac.in | Dcc@123 | DCC / BOS Review |
-| **Academic Office** | cademics@lnmiit.ac.in | Academic@123 | Academic Scrutiny & Milestones |
-| **Senate Member** | senate@lnmiit.ac.in | Senate@123 | Institutional Final Approval |
-
----
-
-## 📂 Repository Directory Structure
-
-`	ext
+```text
 curriculum-revision-management-system/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                     # GitHub Actions CI automated testing pipeline
+├── .github/workflows/ci.yml        # Python CI
 ├── docs/
-│   ├── assignment-01/
-│   │   └── Project-Definition.md      # Lab Assignment 1: Project Identification & Definition
-│   ├── requirements/
-│   │   ├── SRS-v1.0.md                # Lab Assignment 2: Requirements Specification (SRS v1.0)
-│   │   └── diagrams/
-│   │       └── System-Context.png     # Official System Context Diagram
-│   └── pdf/                           # Archival PDF submission documents
-│       ├── T017_Assignment01.pdf
-│       ├── T017_ASSIGNMENT02.pdf
-│       └── T017_CS314_Assignment_01_02_Complete.pdf
-├── src/
-│   ├── api/                           # REST API Endpoints (Auth, Master Data, Proposals)
-│   │   ├── auth.py
-│   │   ├── master_data.py
-│   │   └── proposals.py
-│   ├── models/                        # 20 SQLAlchemy domain entities matching SRS §16
-│   ├── schemas/                       # Pydantic validation schemas
-│   ├── services/                      # Business rules & workflow lifecycle engine
-│   │   ├── auth_service.py
-│   │   ├── audit_service.py
-│   │   ├── proposal_service.py
-│   │   └── workflow_service.py
-│   ├── config.py
-│   ├── database.py
-│   └── main.py                        # FastAPI web application entrypoint
-├── tests/                             # Pytest automated test suite
-│   ├── test_auth.py
-│   ├── test_proposals.py
-│   └── test_workflow.py
-├── scripts/
-│   └── seed_data.py                   # Master seed data script
-├── requirements.txt
-├── .gitignore
-└── README.md                          # Repository documentation
-`
+│   ├── assignment-01/             # Project definition
+│   ├── requirements/              # SRS and system context
+│   ├── assignment-03/             # Scenarios, use cases and activities
+│   ├── assignment-04/             # Classes, objects and relationships
+│   ├── assignment-05/             # Collaboration, states and components
+│   └── pdf/                       # Earlier submission PDFs
+├── client/                        # React/Vite frontend
+├── server/
+│   ├── src/                       # Express routes, services and SQLite database
+│   └── tests/                     # API and Assignment 05 regression tests
+├── src/                           # Earlier FastAPI prototype
+├── tests/                         # Python tests
+├── scripts/seed_data.py            # Python seed script
+├── T017_assignment05.pdf           # Assignment 05 submission
+├── render.yaml                    # Render deployment configuration
+├── DEPLOYMENT.md                   # Deployment guide
+├── REACT-README.md                 # Detailed React application guide
+├── requirements.txt               # Python dependencies
+└── README.md
+```
 
----
+## Implementation scope
 
-## 📜 AI Usage Declaration
+Institutional SSO, email delivery, ERP write-back and production file storage are not connected. Workflow configuration is read-only; master-data editing covers departments and courses. Invited stakeholder onboarding and user/role administration remain outside this implementation. For public deployment, remove demo login, configure a deployment JWT secret and review the dependency-audit notes in [REACT-README.md](REACT-README.md).
 
-AI tools (specifically ChatGPT) were utilized in supporting capacities for formatting assistance, language refinement, and completeness verification in accordance with the course policy. All system requirements, workflows, architectural designs, and implementations were prepared, reviewed, and verified by Team T017.
+## AI usage declaration
 
-**Team Representative:** YASH GUPTA  
-**Date:** September 2026
+AI tools, including ChatGPT, supported documentation formatting, language refinement, completeness checks and implementation assistance. Team T017 is responsible for reviewing and verifying the submitted requirements, models and implementation against the course policy.
 
-## React application
-See [REACT-README.md](REACT-README.md) for the Assignment 05 React implementation, startup commands, demo accounts, workflow and validation.
+**Team representative:** Yash Gupta
+**Documentation coverage:** Assignments 01–05
