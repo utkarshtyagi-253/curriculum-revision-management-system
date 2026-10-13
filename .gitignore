@@ -48,3 +48,8 @@ ENV/
 # OS files
 .DS_Store
 Thumbs.db
+
+# JavaScript dependencies and generated assets
+node_modules/
+client/dist/
+coverage/

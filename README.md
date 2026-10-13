@@ -208,3 +208,6 @@ AI tools (specifically ChatGPT) were utilized in supporting capacities for forma
 
 **Team Representative:** YASH GUPTA  
 **Date:** September 2026
+
+## React application
+See [REACT-README.md](REACT-README.md) for the Assignment 05 React implementation, startup commands, demo accounts, workflow and validation.
