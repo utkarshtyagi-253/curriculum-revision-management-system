@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const { db } = require('../db/db');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'lnmiit-crms-secret-key-2026';
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET must be set for a production deployment.');
+}
 
 function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;

@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: t017-curriculum-revision
+    runtime: node
+    plan: free
+    buildCommand: npm ci --prefix client --include=dev && npm run build --prefix client && npm ci --prefix server --omit=dev
+    startCommand: npm start --prefix server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DB_PATH
+        value: /tmp/crms/curriculum_revision.db

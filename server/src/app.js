@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const authRoutes = require('./routes/authRoutes');
 const proposalRoutes = require('./routes/proposalRoutes');
 const workflowRoutes = require('./routes/workflowRoutes');
@@ -33,6 +35,14 @@ app.get('/api/health', (req, res) => {
 });
 
 // Error handling middleware
+// Serve the production React build alongside the API on a single host.
+app.use('/api', (req, res) => res.status(404).json({ error: 'API endpoint not found' }));
+const clientBuild = path.resolve(__dirname, '../../client/dist');
+if (fs.existsSync(path.join(clientBuild, 'index.html'))) {
+  app.use(express.static(clientBuild));
+  app.get('*', (req, res) => res.sendFile(path.join(clientBuild, 'index.html')));
+}
+
 app.use((err, req, res, next) => {
   console.error('Server Error:', err.stack);
   res.status(500).json({ error: 'Internal Server Error', details: err.message });
