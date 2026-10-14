@@ -13,12 +13,12 @@ A role-based platform for proposing, reviewing, approving, versioning and implem
 **Team ID:** T017
 **Development model:** Agile — Iterative and Incremental Development
 
-| Member | Roll number | Assignment 01–02 responsibility baseline |
+| Member | Roll number | Responsibility |
 | --- | --- | --- |
-| Utkarsh | 24UCC096 | Requirements and analysis, access control and business rules |
-| Piyush | 24UCC097 | Workflow, architecture, versioning and data requirements |
-| Yash | 24UCC099 | Documentation, use cases, acceptance criteria and traceability |
-| Mehul | 24UCC100 | Quality, security, performance, usability and auditability |
+| Utkarsh | 24UCC096 | Architecture |
+| Piyush | 24UCC097 | Requirements |
+| Yash | 24UCC099 | Testing |
+| Mehul | 24UCC100 | Development lead |
 
 ## Assignment deliverables through Assignment 05
 
