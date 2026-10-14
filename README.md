@@ -15,10 +15,10 @@ A role-based platform for proposing, reviewing, approving, versioning and implem
 
 | Member | Roll number | Responsibility |
 | --- | --- | --- |
-| Utkarsh | 24UCC096 | Architecture |
-| Piyush | 24UCC097 | Requirements |
-| Yash | 24UCC099 | Testing |
-| Mehul | 24UCC100 | Development lead |
+| Utkarsh | 24UCC096 | Architecture — design the system structure, database models and component interactions. |
+| Piyush | 24UCC097 | Requirements — gather and analyze stakeholder needs, define use cases and maintain the SRS. |
+| Yash | 24UCC099 | Testing — prepare test cases, validate workflows and report defects to ensure software quality. |
+| Mehul | 24UCC100 | Development lead — coordinate implementation, guide development and integrate application components. |
 
 ## Assignment deliverables through Assignment 05
 
