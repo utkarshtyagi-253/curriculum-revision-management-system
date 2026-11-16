@@ -26,6 +26,8 @@ class WorkflowService {
     }
 
     if (!['Recommend/Forward','Return for Revision','Forward to Senate'].includes(action_type)) throw new Error('Invalid review action.');
+    const configuredActions=(currentStage.permitted_actions||'').split(',').map(action=>action.trim());
+    if (!configuredActions.includes(action_type)) throw new Error(`Action "${action_type}" is not permitted at stage "${currentStage.name}".`);
     if (action_type !== 'Return for Revision' && !db.prepare('SELECT id FROM workflow_stages WHERE workflow_id=? AND sequence_no>?').get(currentStage.workflow_id,currentStage.sequence_no)) throw new Error('Final stage requires a committee decision.');
 
     // BR-008: Return for Revision requires a reason

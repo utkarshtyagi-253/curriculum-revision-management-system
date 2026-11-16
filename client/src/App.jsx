@@ -15,6 +15,7 @@ import ProposalDetail from './pages/ProposalDetail.jsx'
 import PendingReviews from './pages/PendingReviews.jsx'
 import Notifications  from './pages/Notifications.jsx'
 import AuditLog       from './pages/AuditLog.jsx'
+import InvitationFeedback from './pages/InvitationFeedback.jsx'
 
 export default function App() {
   const { user, loading } = useAuth()
@@ -40,6 +41,9 @@ export default function App() {
       </div>
     )
   }
+
+  const inviteToken = new URLSearchParams(window.location.search).get('invite')
+  if (inviteToken) return <InvitationFeedback token={inviteToken} />
 
   // Unauthenticated
   if (!user) return <Login />

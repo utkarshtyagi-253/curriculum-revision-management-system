@@ -1,0 +1,192 @@
+
+> crms-server@1.0.0 test
+> node scripts/run-tests.cjs
+
+PASS tests/assignment06.test.js (13.789 s)
+  ● Console
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+PASS tests/domainValidation.test.js (9.878 s)
+  ● Console
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+PASS tests/assignment05.test.js
+  ● Console
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+PASS tests/api.test.js
+  ● Console
+
+    console.log
+      Database seeded successfully with all roles, users, workflows, and sample data!
+
+      at log (src/db/seed.js:186:11)
+
+
+Test Suites: 4 passed, 4 total
+Tests:       43 passed, 43 total
+Snapshots:   0 total
+Time:        30.859 s
+Ran all test suites.

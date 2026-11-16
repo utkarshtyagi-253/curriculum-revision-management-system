@@ -3,9 +3,11 @@ const router = express.Router();
 const { db } = require('../db/db');
 const { authenticate, requireRole } = require('../middleware/auth');
 const ProposalService = require('../services/proposalService');
+const { requireProposalAccess } = require('../middleware/proposalAccess');
+const { isValidISODate } = require('../domain/dates');
 
 // GET /api/milestones/:proposalId (shorthand for frontend)
-router.get('/:proposalId', authenticate, (req, res) => {
+router.get('/:proposalId', authenticate, requireProposalAccess, (req, res) => {
   const milestones = db.prepare(`
     SELECT im.*, u.name as updated_by_name
     FROM implementation_milestones im
@@ -17,7 +19,7 @@ router.get('/:proposalId', authenticate, (req, res) => {
 });
 
 // GET /api/milestones/proposal/:proposalId
-router.get('/proposal/:proposalId', authenticate, (req, res) => {
+router.get('/proposal/:proposalId', authenticate, requireProposalAccess, (req, res) => {
   const milestones = db.prepare(`
     SELECT im.*, u.name as updated_by_name
     FROM implementation_milestones im
@@ -38,12 +40,12 @@ router.post('/proposal/:proposalId', authenticate, requireRole(['Academic Office
     return res.status(400).json({ error: 'BR-013: Milestones can only be created for Approved proposals.' });
   }
 
-  if (!title || !title.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(target_date || '')) return res.status(400).json({error:'Title and target date are required.'});
+  if (typeof title !== 'string' || title.trim().length < 3 || title.trim().length > 120 || !isValidISODate(target_date) || (evidence_reference !== undefined && evidence_reference !== null && typeof evidence_reference !== 'string')) return res.status(400).json({error:'Provide a milestone title (3–120 characters), valid target date (YYYY-MM-DD), and text evidence reference.'});
   const id = require('crypto').randomUUID();
   db.prepare(`
     INSERT INTO implementation_milestones (id, proposal_id, title, target_date, status, evidence_reference, updated_by)
     VALUES (?, ?, ?, ?, 'Not Started', ?, ?)
-  `).run(id, req.params.proposalId, title, target_date, evidence_reference || '', req.user.id);
+  `).run(id, req.params.proposalId, title.trim(), target_date, evidence_reference?.trim() || '', req.user.id);
 
   ProposalService.recordAudit(req.user.id, 'MILESTONE_CREATED', 'Milestone', id, 'SUCCESS', `Created milestone: "${title}"`);
   res.status(201).json({ id, message: 'Milestone created successfully' });
@@ -55,7 +57,9 @@ router.put('/:id', authenticate, requireRole(['Academic Office']), (req, res) =>
   const milestone = db.prepare('SELECT * FROM implementation_milestones WHERE id=?').get(req.params.id);
   if (!milestone) return res.status(404).json({error:'Milestone not found'});
   if (!['Not Started','In Progress','Completed','Delayed'].includes(status)) return res.status(400).json({error:'Invalid milestone status'});
-  if (status === 'Completed' && !evidence_reference?.trim()) return res.status(400).json({error:'Completion requires an evidence reference.'});
+  if (completion_date !== undefined && completion_date !== null && completion_date !== '' && !isValidISODate(completion_date)) return res.status(400).json({error:'Completion date must be a valid calendar date (YYYY-MM-DD).'});
+  if (evidence_reference !== undefined && evidence_reference !== null && typeof evidence_reference !== 'string') return res.status(400).json({error:'Evidence reference must be text.'});
+  if (status === 'Completed' && (!evidence_reference || !evidence_reference.trim())) return res.status(400).json({error:'Completion requires an evidence reference.'});
   db.prepare(`
     UPDATE implementation_milestones
     SET status = COALESCE(?, status),

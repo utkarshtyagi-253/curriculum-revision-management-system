@@ -7,7 +7,7 @@ function seed() {
   // Clear existing data for fresh clean seed
   const tables = [
     'audit_events', 'implementation_milestones', 'notifications', 'decisions',
-    'committee_meetings', 'feedback', 'stakeholder_invitations', 'review_actions',
+    'committee_meetings', 'feedback', 'stakeholder_invitation_tokens', 'stakeholder_invitations', 'review_actions',
     'pending_actions', 'supporting_documents', 'proposal_versions', 'proposals',
     'workflow_stages', 'workflow_definitions', 'committees', 'courses',
     'programmes', 'departments', 'user_roles', 'roles', 'users'

@@ -1,5 +1,6 @@
 const { db } = require('../db/db');
 const ProposalService = require('./proposalService');
+const { isValidISODate } = require('../domain/dates');
 
 class CommitteeService {
   static recordDecision(proposalId, committeeUser, decisionData) {
@@ -21,6 +22,12 @@ class CommitteeService {
     if (!['Committee Review','Senate Review','Under Review','Submitted / Under Review'].includes(proposal.current_status)) throw new Error('Stale proposal: no active committee review.');
     if (!['DCC Reviewer','Senate / Academic Council'].includes(currentStage.responsible_role)) throw new Error('Current stage requires a review action.');
     if (!['Recommendation','Conditional Approval','Return for Revision','Rejection','Final Approval'].includes(decision_type)) throw new Error('Invalid committee decision.');
+    if (Boolean(meeting_ref) !== Boolean(meeting_date)) throw new Error('Meeting reference and meeting date must be provided together.');
+    if (meeting_ref !== undefined && meeting_ref !== null && (typeof meeting_ref !== 'string' || meeting_ref.trim().length < 3 || meeting_ref.trim().length > 120)) throw new Error('Meeting reference must contain 3 to 120 characters.');
+    if (meeting_date !== undefined && meeting_date !== null && !isValidISODate(meeting_date)) throw new Error('Meeting date must be a valid calendar date in YYYY-MM-DD format.');
+    const configuredActions=(currentStage.permitted_actions||'').split(',').map(action=>action.trim());
+    const configuredDecisionName={'Recommendation':'Recommend/Forward','Rejection':'Reject'}[decision_type]||decision_type;
+    if (!configuredActions.includes(configuredDecisionName)) throw new Error(`Decision "${decision_type}" is not permitted at stage "${currentStage.name}".`);
     if (decision_type === 'Final Approval' && currentStage.responsible_role !== 'Senate / Academic Council') throw new Error('Final approval requires the Senate stage.');
     if (currentStage.responsible_role === 'Senate / Academic Council' && decision_type === 'Recommendation') throw new Error('Final stage requires an approval or rejection.');
 
@@ -60,7 +67,7 @@ class CommitteeService {
       db.prepare(`
         INSERT INTO committee_meetings (id, committee_id, meeting_ref, meeting_date, notes)
         VALUES (?, ?, ?, ?, ?)
-      `).run(meetingId, committee ? committee.id : 'comm-dcc-cce', meeting_ref, meeting_date, 'Recorded via Decision Portal');
+      `).run(meetingId, committee ? committee.id : 'comm-dcc-cce', meeting_ref.trim(), meeting_date, 'Recorded via Decision Portal');
     }
 
     // Record decision in decisions table (16.17)

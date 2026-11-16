@@ -132,6 +132,12 @@ export function recordDecision(id, data) {
 export function getWorkflowStages() {
   return request('/workflow/stages')
 }
+export const addWorkflowStage = data => request('/workflow/stages',{method:'POST',body:JSON.stringify(data)})
+export const updateWorkflowStage = (id,data) => request(`/workflow/stages/${id}`,{method:'PUT',body:JSON.stringify(data)})
+export const deleteWorkflowStage = id => request(`/workflow/stages/${id}`,{method:'DELETE'})
+export const createStakeholderInvitation = (proposalId,data) => request(`/stakeholder/proposals/${proposalId}/invitations`,{method:'POST',body:JSON.stringify(data)})
+export const getStakeholderInvitation = token => request(`/stakeholder/invitation?token=${encodeURIComponent(token)}`,{headers:{}})
+export const submitStakeholderFeedback = data => request('/stakeholder/invitation/feedback',{method:'POST',body:JSON.stringify(data)})
 
 // Master Data
 export function getDepartments() {
@@ -168,3 +174,6 @@ export const uploadDocument = (id,data) => request(`/proposals/${id}/documents`,
 export const getMasterData = () => request('/master-data/summary')
 export const addDepartment = data => request('/master-data/departments', {method:'POST',body:JSON.stringify(data)})
 export const addCourse = data => request('/master-data/courses', {method:'POST',body:JSON.stringify(data)})
+export const getAdminUsers = () => request('/admin/users')
+export const createAdminUser = data => request('/admin/users', {method:'POST',body:JSON.stringify(data)})
+export const updateAdminUser = (id,data) => request(`/admin/users/${id}`, {method:'PUT',body:JSON.stringify(data)})

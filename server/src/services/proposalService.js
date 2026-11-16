@@ -1,5 +1,6 @@
 const { db } = require('../db/db');
 const crypto = require('crypto');
+const { MAX_COURSE_CREDITS, parseCourseCredits } = require('../domain/credits');
 
 class ProposalService {
   static getProposalById(proposalId) {
@@ -39,6 +40,7 @@ class ProposalService {
       versions,
       documents,
       pendingActions,
+      stakeholder_feedback: db.prepare('SELECT f.*,u.name author_name,si.category FROM feedback f JOIN users u ON u.id=f.author_id LEFT JOIN stakeholder_invitations si ON si.proposal_id=f.proposal_id AND si.invitee_email=u.email WHERE f.proposal_id=? ORDER BY f.created_at DESC').all(proposalId),
       review_history: db.prepare('SELECT ra.*, u.name as reviewer_name, ws.responsible_role as role FROM review_actions ra JOIN users u ON ra.reviewer_id=u.id JOIN workflow_stages ws ON ra.stage_id=ws.id WHERE proposal_id=? ORDER BY action_timestamp DESC').all(proposalId),
       decisions: db.prepare('SELECT dec.*, cm.meeting_ref, cm.meeting_date, u.name as recorded_by_name FROM decisions dec LEFT JOIN committee_meetings cm ON dec.meeting_id=cm.id JOIN users u ON dec.recorded_by=u.id WHERE proposal_id=? ORDER BY decision_timestamp DESC').all(proposalId)
     };
@@ -86,6 +88,12 @@ class ProposalService {
 
     if (proposal.owner_id !== userId) {
       throw new Error('Access denied: You do not own this proposal.');
+    }
+
+    if (data.credits !== undefined && data.credits !== null && data.credits !== '') {
+      const credits = parseCourseCredits(data.credits);
+      if (credits === null) throw new Error(`Credit value must be positive, no greater than ${MAX_COURSE_CREDITS}, and in 0.5 increments.`);
+      data = { ...data, credits };
     }
 
     // Update main proposal fields
@@ -182,8 +190,8 @@ class ProposalService {
     if (!draft || !draft.academic_rationale || draft.academic_rationale.trim().length < 15) {
       errors.push('Academic rationale is mandatory (minimum 15 characters)');
     }
-    if (!draft || !draft.credits || draft.credits <= 0) {
-      errors.push('Valid credit count is required');
+    if (!draft || parseCourseCredits(draft.credits) === null) {
+      errors.push(`Credit value must be positive, no greater than ${MAX_COURSE_CREDITS}, and in 0.5 increments`);
     }
     if (!draft || !draft.syllabus_changes || draft.syllabus_changes.trim().length < 10) {
       errors.push('Syllabus change description is required');

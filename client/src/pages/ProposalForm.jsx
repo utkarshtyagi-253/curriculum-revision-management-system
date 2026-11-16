@@ -104,7 +104,8 @@ export default function ProposalForm({ proposalId, onBack, onProposalCreated }) 
     if (!form.proposed_implementation_session.trim())
       errs.proposed_implementation_session = 'Implementation session is required'
     if (form.academic_rationale.trim().length < 15) errs.academic_rationale = 'Academic rationale must contain at least 15 characters'
-    if (!Number.isInteger(Number(form.credits)) || Number(form.credits)<1) errs.credits = 'A positive whole credit count is required'
+    const credits = Number(form.credits)
+    if (!form.credits.trim() || !Number.isFinite(credits) || credits <= 0 || credits > 12 || !Number.isInteger(credits * 2)) errs.credits = 'Credits must be positive, no greater than 12, and in 0.5 increments'
     if (form.syllabus_change_description.trim().length<10) errs.syllabus_change_description = 'Syllabus description must contain at least 10 characters'
     setValidationErrors(errs)
     return Object.keys(errs).length === 0
@@ -263,7 +264,7 @@ export default function ProposalForm({ proposalId, onBack, onProposalCreated }) 
                 type="text"
                 value={form.proposed_implementation_session}
                 onChange={set('proposed_implementation_session')}
-                placeholder="e.g., 2024-25 Even Semester"
+                placeholder="e.g., 2027-28 Odd Semester"
                 className={inputCls('proposed_implementation_session')}
               />
             </Field>
@@ -281,16 +282,18 @@ export default function ProposalForm({ proposalId, onBack, onProposalCreated }) 
           </Field>
 
           <div className="grid md:grid-cols-2 gap-5">
-            <Field label="Credits">
+            <Field label="Credits" required error={validationErrors.credits}>
               <input
                 type="number"
                 value={form.credits}
                 onChange={set('credits')}
-                placeholder="e.g., 4"
-                min="0"
+                placeholder="e.g., 4.5"
+                min="0.5"
                 max="12"
+                step="0.5"
                 className={inputCls('credits')}
               />
+              <p className="mt-1 text-xs text-gray-400">Use positive values in 0.5-credit increments, up to 12 credits.</p>
             </Field>
             <Field label="Prerequisites">
               <input

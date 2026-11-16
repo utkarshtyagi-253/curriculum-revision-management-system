@@ -43,7 +43,7 @@ Quick-login buttons use these seeded credentials. This is an academic demonstrat
 6. Senate records final approval or rejection. Earlier stages cannot grant final approval, and repeated or stale decisions are blocked.
 7. Academic Office creates implementation milestones and updates their status, with evidence required for completion.
 8. Notifications preserve read status. Proposal timelines, review/decision history and administrator/Academic Office audit views retain the actor and timestamp.
-9. Administrator views workflow configuration and manages department/course master data.
+9. Administrator manages workflow stages, departments/courses, local user accounts and role assignments.
 
 ## Validation
 
@@ -54,10 +54,12 @@ npm test --prefix server
 
 Tests use an in-memory database and never reset the development database. Regression coverage includes snapshot preservation on resubmission, partial draft saves, invalid action rollback, authority/stage checks, final approval, actual document bytes and milestone evidence validation.
 
+Assignment 06 test cases, execution results, traceability matrix and evidence are documented in [Testing Plan, Execution, RTM and Summary](docs/assignment-06/Testing-Plan-Execution-RTM.md).
+
 ## Architecture and scope
 
 React calls `/api` through Vite's proxy. API routes delegate to ProposalService, WorkflowService and CommitteeService. Transaction boundaries keep snapshots, decisions, pending actions, notifications and audits consistent when a transition fails. SQLite stores document data URLs for this small demonstration.
 
-Institutional SSO, email delivery, ERP write-back and production file storage are external integrations and are not connected. Workflow configuration is shown read-only; master-data editing covers departments and courses. Invited external-stakeholder onboarding and user/role administration remain outside this implementation.
+Proposal lists and details are scoped to the owner, responsible review role, administrators and previous review/decision participants. Local user and role management is available to administrators; workflow stages can be added and unused stages removed. External feedback invitations are email-bound, expire, and expose only limited proposal context; because email delivery is not connected, inviters share the generated link manually. In-app reminders are created for pending actions older than three days. Institutional SSO, ERP write-back and production file storage remain external integrations.
 
 Dependency audit: compatible npm audit fixes were applied. Remaining advisories require major dependency upgrades; review them before a public deployment.

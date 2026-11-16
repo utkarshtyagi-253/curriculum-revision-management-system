@@ -3,9 +3,9 @@
 [![Python CI](https://github.com/utkarshtyagi-253/curriculum-revision-management-system/actions/workflows/ci.yml/badge.svg)](https://github.com/utkarshtyagi-253/curriculum-revision-management-system/actions/workflows/ci.yml)
 ![Course](https://img.shields.io/badge/Course-CS314-blue)
 ![Team](https://img.shields.io/badge/Team-T017-green)
-![Assignments](https://img.shields.io/badge/Assignments-01%20through%2005-purple)
+![Assignments](https://img.shields.io/badge/Assignments-01%20through%2006-purple)
 
-A role-based platform for proposing, reviewing, approving, versioning and implementing academic curriculum changes. This repository contains documentation through **Assignment 05**, the **React 19 + Express + SQLite application**, and the earlier **Python/FastAPI prototype**.
+A role-based platform for proposing, reviewing, approving, versioning and implementing academic curriculum changes. This repository contains documentation through **Assignment 06**, the **React 19 + Express + SQLite application**, and the earlier **Python/FastAPI prototype**.
 
 ## Team details
 
@@ -29,6 +29,7 @@ A role-based platform for proposing, reviewing, approving, versioning and implem
 | **03** | Scenarios, use-case and activity modelling | [Scenario, Use Case and Activity Modelling](docs/assignment-03/Scenario-Use-Case-Activity-Modelling.md) |
 | **04** | Classes, object diagram and relationships | [Classes, Object Diagram and Relationships](docs/assignment-04/Classes-Object-Diagram-Relationships.md) |
 | **05** | Collaboration/communication, state and component modelling | [Collaboration, State and Component Modelling](docs/assignment-05/Collaboration-State-Component-Modelling.md) · [Assignment 05 PDF](T017_assignment05.pdf) |
+| **06** | Test design, execution, defects and requirements traceability | [Test Plan, Execution, RTM and Summary](docs/assignment-06/Testing-Plan-Execution-RTM.md) · [Execution evidence](docs/assignment-06/evidence/) |
 
 The modelling documents carry forward **UC-005 — Submit Proposal**, **UC-009 — Review Proposal and Record Feedback**, and **UC-015 — Record Committee Decision**. Assignment 05 describes their collaborating objects, proposal state transitions and component responsibilities.
 
@@ -48,7 +49,7 @@ Curriculum revisions often rely on scattered email threads, spreadsheets, meetin
 | Academic Office | Perform academic scrutiny, forward proposals and track implementation milestones |
 | Senate / Academic Council | Record final approval or rejection |
 | System Administrator | View workflow configuration, manage departments/courses and inspect audits |
-| Invited students, alumni and industry | Provide contextual feedback in the requirements model; external onboarding is outside the current implementation |
+| Invited students, alumni and industry | Submit contextual feedback through expiring, proposal-scoped invitation links |
 
 ## Assignment 05 application
 
@@ -56,13 +57,16 @@ The React application provides:
 
 - JWT authentication and server-side role/stage authorization.
 - Draft saving, academic-field validation and PDF, text or DOCX attachments up to 5 MB.
+- Course credits support positive half-credit units and are validated in both the React form and API.
 - Immutable submission/resubmission snapshots and field comparison between versions.
 - Pending reviews, feedback, forwarding and return/rejection with required reasons.
 - Committee decisions with meeting reference/date and conditions for conditional approval.
 - Senate-only final approval, with repeated or stale decisions blocked.
 - Implementation milestones with evidence required for completion.
 - Notifications with persistent read status, proposal timelines, decision history and audit views.
-- Administrator department/course management and read-only workflow configuration.
+- One-time, email-bound external feedback invitations with expiry; pending actions receive in-app reminders after three days.
+- Administrator department/course management, local user/role administration and workflow-stage management.
+- Proposal visibility scoped to its owner, responsible review role, authorized administrators and prior decision participants.
 
 ### Workflow demonstration
 
@@ -127,7 +131,7 @@ npm test --prefix server
 
 Server tests use an in-memory database without resetting development data. Regression coverage includes snapshot preservation on resubmission, partial draft saves, invalid-action rollback, role/stage checks, final approval, document bytes and milestone evidence validation.
 
-The existing GitHub Actions workflow runs the **Python pytest suite**. Run the React build and Node tests separately using the commands above.
+GitHub Actions runs the Python pytest suite and, in a separate job, the **React application’s Express API tests and client production build**.
 
 See [REACT-README.md](REACT-README.md) for the detailed application guide and [DEPLOYMENT.md](DEPLOYMENT.md) for Render deployment. The free-demo configuration uses ephemeral storage, so online data can be lost after restarts or redeployment.
 
@@ -159,6 +163,7 @@ curriculum-revision-management-system/
 │   ├── assignment-03/             # Scenarios, use cases and activities
 │   ├── assignment-04/             # Classes, objects and relationships
 │   ├── assignment-05/             # Collaboration, states and components
+│   ├── assignment-06/             # Test cases, execution, evidence and RTM
 │   └── pdf/                       # Earlier submission PDFs
 ├── client/                        # React/Vite frontend
 ├── server/
@@ -177,11 +182,11 @@ curriculum-revision-management-system/
 
 ## Implementation scope
 
-Institutional SSO, email delivery, ERP write-back and production file storage are not connected. Workflow configuration is read-only; master-data editing covers departments and courses. Invited stakeholder onboarding and user/role administration remain outside this implementation. For public deployment, remove demo login, configure a deployment JWT secret and review the dependency-audit notes in [REACT-README.md](REACT-README.md).
+Institutional SSO, email delivery, ERP write-back and production file storage are not connected. Invitation links must be shared by the inviter because email delivery is not connected. For public deployment, remove demo login, configure a deployment JWT secret and review the dependency-audit notes in [REACT-README.md](REACT-README.md).
 
 ## AI usage declaration
 
 AI tools, including ChatGPT, supported documentation formatting, language refinement, completeness checks and implementation assistance. Team T017 is responsible for reviewing and verifying the submitted requirements, models and implementation against the course policy.
 
 **Team representative:** Yash Gupta
-**Documentation coverage:** Assignments 01–05
+**Documentation coverage:** Assignments 01–06

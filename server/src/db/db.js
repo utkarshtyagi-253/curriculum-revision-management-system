@@ -71,7 +71,7 @@ function initSchema() {
       id TEXT PRIMARY KEY,
       code TEXT NOT NULL UNIQUE,
       title TEXT NOT NULL,
-      credits INTEGER NOT NULL,
+      credits REAL NOT NULL,
       department_id TEXT NOT NULL,
       current_status TEXT DEFAULT 'ACTIVE',
       FOREIGN KEY (department_id) REFERENCES departments(id)
@@ -133,7 +133,7 @@ function initSchema() {
       version_number INTEGER NOT NULL,
       academic_rationale TEXT,
       prerequisites TEXT,
-      credits INTEGER,
+      credits REAL,
       syllabus_changes TEXT,
       resource_implications TEXT,
       structured_fields TEXT,
@@ -204,6 +204,13 @@ function initSchema() {
       status TEXT DEFAULT 'ACTIVE',
       FOREIGN KEY (proposal_id) REFERENCES proposals(id) ON DELETE CASCADE,
       FOREIGN KEY (invited_by) REFERENCES users(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS stakeholder_invitation_tokens (
+      invitation_id TEXT PRIMARY KEY,
+      token_hash TEXT NOT NULL UNIQUE,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (invitation_id) REFERENCES stakeholder_invitations(id) ON DELETE CASCADE
     );
 
     -- 16.15 Feedback

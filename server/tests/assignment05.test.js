@@ -6,6 +6,7 @@ const { seed } = require('../src/db/seed');
 const Proposal = require('../src/services/proposalService');
 const Workflow = require('../src/services/workflowService');
 const Committee = require('../src/services/committeeService');
+const { createPendingActionReminders } = require('../src/services/reminderService');
 const faculty = {id:'user-faculty',name:'Faculty',roles:['Faculty Proposer']};
 const hod = {id:'user-hod',name:'HOD',roles:['Programme Coordinator / HOD']};
 const dcc = {id:'user-dcc',name:'DCC',roles:['DCC Reviewer']};
@@ -54,3 +55,10 @@ test('document upload persists bytes and blocks non-owner; completed milestone n
 });
 
 test('dashboard returns actual proposal counts',async()=>{const token=(await request(app).post('/api/auth/login').send({email:'faculty@lnmiit.ac.in',password:'Faculty@123'})).body.token; const res=await request(app).get('/api/proposals/stats').set('Authorization',`Bearer ${token}`); expect(res.status).toBe(200);expect(res.body.total).toBe(4);expect(res.body.drafts).toBe(1);expect(res.body.underReview).toBe(2);});
+
+test('pending actions older than three days create one in-app reminder per day',()=>{
+ db.prepare("UPDATE pending_actions SET created_at=datetime('now','-4 days') WHERE id='pa-014-1'").run();
+ expect(createPendingActionReminders()).toBe(1);
+ expect(createPendingActionReminders()).toBe(0);
+ expect(db.prepare("SELECT count(*) n FROM notifications WHERE event_type='PENDING_ACTION_REMINDER' AND proposal_id='CR-2026-014'").get().n).toBe(1);
+});

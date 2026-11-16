@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import {
   ShieldCheck, Settings, Building, BookOpen, Users, Layers,
-  RefreshCw, PlusCircle, AlertCircle, CheckCircle, Loader2,
+  RefreshCw, PlusCircle, AlertCircle, CheckCircle, Loader2, Trash2,
   GraduationCap, ChevronRight
 } from 'lucide-react'
-import { getMasterData, getWorkflowStages, addDepartment, addCourse } from '../services/api.js'
+import { getMasterData, getWorkflowStages, addDepartment, addCourse, getAdminUsers, createAdminUser, updateAdminUser, addWorkflowStage, updateWorkflowStage, deleteWorkflowStage } from '../services/api.js'
 import { useAuth } from '../context/AuthContext.jsx'
 
 function SectionCard({ title, icon: Icon, children, action }) {
@@ -49,6 +49,7 @@ function AddForm({ fields, onSubmit, busy }) {
             placeholder={f.placeholder}
             min={f.min}
             max={f.max}
+            step={f.step}
             className={`px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 ${f.width || 'flex-1 min-w-36'}`}
           />
         )
@@ -73,13 +74,15 @@ export default function Administration() {
   const [error, setError]     = useState('')
   const [success, setSuccess] = useState('')
   const [busy, setBusy]       = useState(false)
+  const [admin, setAdmin] = useState({ users:[], roles:[], departments:[] })
 
   const load = useCallback(async () => {
     setLoading(true); setError('')
     try {
-      const [d, s] = await Promise.all([getMasterData(), getWorkflowStages()])
+      const [d, s, a] = await Promise.all([getMasterData(), getWorkflowStages(), getAdminUsers()])
       setData(d)
       setStages(Array.isArray(s) ? s : s.stages || [])
+      setAdmin(a)
     } catch (e) {
       setError(e.message || 'Failed to load administration data.')
     } finally {
@@ -106,6 +109,52 @@ export default function Administration() {
     } finally {
       setBusy(false)
     }
+  }
+
+  async function handleCreateUser(e) {
+    e.preventDefault()
+    const form=e.currentTarget, values=Object.fromEntries(new FormData(form))
+    values.role_ids=Array.from(form.querySelectorAll('[name="role_ids"]:checked')).map(input=>input.value)
+    setBusy(true); setError(''); setSuccess('')
+    try { await createAdminUser(values); form.reset(); setSuccess('User created.'); await load() }
+    catch(error) { setError(error.message || 'Could not create user.') }
+    finally { setBusy(false) }
+  }
+
+  async function toggleUserRole(user, roleId, checked) {
+    const userRoleNames=(user.roles || '').split(', ').filter(Boolean)
+    const current=admin.roles.filter(r=>userRoleNames.includes(r.name)).map(r=>r.id)
+    const next=checked ? [...new Set([...current,roleId])] : current.filter(id=>id!==roleId)
+    if (!next.length) { setError('Each account must keep at least one role.'); return }
+    try { await updateAdminUser(user.id,{role_ids:next}); await load() }
+    catch(error) { setError(error.message || 'Could not update roles.') }
+  }
+
+  async function toggleUserStatus(user) {
+    try { await updateAdminUser(user.id,{account_status:user.account_status==='ACTIVE'?'INACTIVE':'ACTIVE'}); await load() }
+    catch(error) { setError(error.message || 'Could not update account.') }
+  }
+
+  async function handleAddStage(e) {
+    e.preventDefault(); const form=e.currentTarget, values=Object.fromEntries(new FormData(form))
+    setBusy(true); setError('')
+    try { await addWorkflowStage(values); form.reset(); setSuccess('Workflow stage added.'); await load() }
+    catch(error) { setError(error.message || 'Could not add workflow stage.') }
+    finally { setBusy(false) }
+  }
+
+  async function handleRemoveStage(stage) {
+    setError('')
+    try { await deleteWorkflowStage(stage.id); setSuccess('Workflow stage removed.'); await load() }
+    catch(error) { setError(error.message || 'Could not remove workflow stage.') }
+  }
+
+  async function handleUpdateStage(e, stage) {
+    e.preventDefault(); const values=Object.fromEntries(new FormData(e.currentTarget)); values.is_mandatory=values.is_mandatory==='on'
+    setBusy(true); setError('')
+    try { await updateWorkflowStage(stage.id,values); setSuccess('Workflow stage updated.'); await load() }
+    catch(error) { setError(error.message || 'Could not update workflow stage.') }
+    finally { setBusy(false) }
   }
 
   if (!hasRole('admin')) {
@@ -157,11 +206,14 @@ export default function Administration() {
         </div>
       ) : (
         <>
-          {/* Review Workflow (read-only per SRS) */}
-          <SectionCard title="Review Workflow (read-only)" icon={Layers}>
-            <p className="text-xs text-gray-400 mb-4">
-              The configured approval sequence is displayed for reference. Workflow configuration is read-only in this implementation.
-            </p>
+          <SectionCard title="Review Workflow" icon={Layers}>
+            <p className="text-xs text-gray-500 mb-4">Manage stages, responsible roles, permitted actions and sequence. Active proposals prevent changes to their current stage role or sequence.</p>
+            <form onSubmit={handleAddStage} className="flex flex-wrap gap-3 mb-5 p-4 bg-primary-50 border border-primary-100 rounded-xl">
+              <input name="name" required placeholder="Stage name" className="flex-1 min-w-40 px-3 py-2 border rounded-lg text-sm" />
+              <select name="responsible_role" required className="px-3 py-2 border rounded-lg text-sm"><option value="">Responsible role</option>{admin.roles.map(r=><option key={r.id}>{r.name}</option>)}</select>
+              <input name="permitted_actions" required placeholder="Permitted actions (comma separated)" className="flex-1 min-w-52 px-3 py-2 border rounded-lg text-sm" />
+              <button disabled={busy} className="px-4 py-2 bg-primary-800 text-white rounded-lg text-sm disabled:opacity-50">Add stage</button>
+            </form>
             {stages.length === 0 ? (
               <p className="text-sm text-gray-400 italic">No active workflow stages configured.</p>
             ) : (
@@ -174,20 +226,15 @@ export default function Administration() {
                     <div className="w-8 h-8 rounded-full bg-primary-700 text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
                       {s.sequence_no || i + 1}
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 text-sm">{s.name}</p>
-                      <p className="text-xs text-gray-600 mt-0.5">
-                        <span className="font-medium">Responsible Role:</span> {s.responsible_role}
-                      </p>
-                      {s.permitted_actions && (
-                        <p className="text-xs text-gray-500 mt-0.5">
-                          <span className="font-medium">Permitted Actions:</span> {s.permitted_actions}
-                        </p>
-                      )}
-                      {s.workflow_name && (
-                        <p className="text-xs text-gray-400 mt-1">Workflow: {s.workflow_name}</p>
-                      )}
-                    </div>
+                    <form onSubmit={e=>handleUpdateStage(e,s)} className="flex-1 grid sm:grid-cols-2 gap-2">
+                      <input name="name" required defaultValue={s.name} aria-label="Stage name" className="px-2 py-1 border rounded text-sm" />
+                      <select name="responsible_role" defaultValue={s.responsible_role} aria-label="Responsible role" className="px-2 py-1 border rounded text-sm">{admin.roles.map(r=><option key={r.id}>{r.name}</option>)}</select>
+                      <input name="permitted_actions" required defaultValue={s.permitted_actions} aria-label="Permitted actions" className="px-2 py-1 border rounded text-xs sm:col-span-2" />
+                      <label className="flex items-center gap-2 text-xs text-gray-600"><span>Sequence</span><input name="sequence_no" type="number" min="1" required defaultValue={s.sequence_no} className="w-16 px-2 py-1 border rounded" /><input name="is_mandatory" type="checkbox" defaultChecked={Boolean(s.is_mandatory)} /> Mandatory</label>
+                      <button disabled={busy} className="justify-self-start px-3 py-1 bg-white border rounded text-xs text-primary-700 disabled:opacity-50">Save stage</button>
+                      {s.workflow_name && <span className="sm:col-span-2 text-xs text-gray-400">Workflow: {s.workflow_name}</span>}
+                    </form>
+                    <button onClick={()=>handleRemoveStage(s)} className="p-2 text-gray-400 hover:text-red-600" title="Remove stage"><Trash2 className="w-4 h-4" /></button>
                     {i < stages.length - 1 && (
                       <ChevronRight className="w-4 h-4 text-primary-400 mt-2 flex-shrink-0" />
                     )}
@@ -237,7 +284,7 @@ export default function Administration() {
               fields={[
                 { name: 'code',  label: 'Course code',  placeholder: 'e.g., CS401', required: true, width: 'w-32' },
                 { name: 'title', label: 'Course title',  placeholder: 'Course title', required: true },
-                { name: 'credits', label: 'Credits', type: 'number', placeholder: 'Credits', required: true, min: '1', max: '30', width: 'w-24' },
+                { name: 'credits', label: 'Credits (0.5 increments)', type: 'number', placeholder: 'e.g., 4.5', required: true, min: '0.5', max: '12', step: '0.5', width: 'w-28' },
                 {
                   name: 'department_id', label: 'Department', type: 'select', placeholder: 'Select department', required: true,
                   options: (data?.departments || []).map(d => ({ value: d.id, label: `${d.code} — ${d.name}` }))
@@ -311,46 +358,22 @@ export default function Administration() {
             </SectionCard>
           </div>
 
-          {/* User Management Placeholder */}
           <SectionCard title="User & Role Management" icon={ShieldCheck}>
-            <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
-              <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-amber-800">Out of scope for this implementation</p>
-                <p className="text-xs text-amber-700 mt-1">
-                  Institutional SSO, user account creation and role administration are external integrations not connected
-                  in this demonstration. Demo accounts are seeded automatically. See the SRS (Section 11.7) and README for details.
-                </p>
+            <p className="text-xs text-gray-500 mb-4">Create local demonstration accounts, assign one or more approved roles, and deactivate access when needed.</p>
+            <form onSubmit={handleCreateUser} className="p-4 mb-5 bg-primary-50 border border-primary-100 rounded-xl space-y-3">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <input name="name" required minLength="2" placeholder="Full name" className="px-3 py-2 border rounded-lg text-sm" />
+                <input name="email" type="email" required placeholder="Email address" className="px-3 py-2 border rounded-lg text-sm" />
+                <input name="password" type="password" required minLength="10" placeholder="Initial password (10+ chars)" className="px-3 py-2 border rounded-lg text-sm" />
+                <select name="department_id" className="px-3 py-2 border rounded-lg text-sm"><option value="">No department</option>{admin.departments.map(d=><option key={d.id} value={d.id}>{d.code} — {d.name}</option>)}</select>
               </div>
-            </div>
-            <div className="mt-4 grid sm:grid-cols-2 gap-3 text-xs text-gray-500">
-              <div className="p-3 border border-gray-100 rounded-lg bg-gray-50">
-                <p className="font-semibold text-gray-700 mb-1">Roles in the system</p>
-                {['Faculty Proposer','Programme Coordinator / HOD','DCC Reviewer','Academic Office','Senate / Academic Council','System Administrator']
-                  .map(r => (
-                    <div key={r} className="flex items-center gap-2 py-0.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary-400" />
-                      <span>{r}</span>
-                    </div>
-                  ))
-                }
-              </div>
-              <div className="p-3 border border-gray-100 rounded-lg bg-gray-50">
-                <p className="font-semibold text-gray-700 mb-1">Demo accounts</p>
-                {[
-                  ['Faculty', 'faculty@lnmiit.ac.in'],
-                  ['HOD', 'hod@lnmiit.ac.in'],
-                  ['DCC', 'dcc@lnmiit.ac.in'],
-                  ['Academic Office', 'academics@lnmiit.ac.in'],
-                  ['Senate', 'senate@lnmiit.ac.in'],
-                  ['Admin', 'admin@lnmiit.ac.in'],
-                ].map(([role, email]) => (
-                  <div key={email} className="flex justify-between py-0.5">
-                    <span className="font-medium text-gray-600">{role}</span>
-                    <span className="font-mono text-gray-400">{email}</span>
-                  </div>
-                ))}
-              </div>
+              <div className="flex flex-wrap gap-3">{admin.roles.map(role=><label key={role.id} className="flex gap-2 items-center text-xs text-gray-700"><input name="role_ids" type="checkbox" value={role.id} />{role.name}</label>)}</div>
+              <button disabled={busy} className="px-4 py-2 rounded-lg bg-primary-800 text-white text-sm disabled:opacity-50">Create user</button>
+            </form>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm"><thead><tr className="text-left text-xs uppercase text-gray-500 border-b"><th className="py-2">Account</th><th>Roles (toggle to update)</th><th>Status</th><th /></tr></thead>
+                <tbody className="divide-y">{admin.users.map(user=><tr key={user.id} className="align-top"><td className="py-3 pr-4"><div className="font-medium">{user.name}</div><div className="text-xs text-gray-500">{user.email}{user.department_name?` · ${user.department_name}`:''}</div></td><td className="py-3"><div className="flex flex-wrap gap-x-3 gap-y-2">{admin.roles.map(role=><label key={role.id} className="flex gap-1.5 items-center text-xs"><input type="checkbox" checked={(user.roles||'').split(', ').includes(role.name)} onChange={e=>toggleUserRole(user,role.id,e.target.checked)} />{role.name}</label>)}</div></td><td className="py-3 text-xs">{user.account_status}</td><td className="py-3 text-right"><button onClick={()=>toggleUserStatus(user)} className="text-xs text-primary-700 hover:underline">{user.account_status==='ACTIVE'?'Deactivate':'Reactivate'}</button></td></tr>)}</tbody>
+              </table>
             </div>
           </SectionCard>
         </>

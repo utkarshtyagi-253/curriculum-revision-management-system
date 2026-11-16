@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db/db');
 const { authenticate, requireRole } = require('../middleware/auth');
+const { MAX_COURSE_CREDITS, parseCourseCredits } = require('../domain/credits');
 
 // GET /api/master-data/summary
 router.get('/summary', authenticate, (req, res) => {
@@ -41,20 +42,23 @@ router.get('/courses', authenticate, (req, res) => {
 // Admin-only management endpoints (FR-007, BR-001)
 router.post('/departments', authenticate, requireRole(['System Administrator']), (req, res) => {
   const { name, code } = req.body;
-  if (typeof name !== 'string' || !name.trim() || typeof code !== 'string' || !/^[A-Za-z0-9-]+$/.test(code)) return res.status(400).json({error:'Valid name and code are required.'});
-  if (db.prepare('SELECT id FROM departments WHERE code=?').get(code)) return res.status(409).json({error:'Department code already exists.'});
-  const id = `dept-${code.toLowerCase()}`;
-  db.prepare('INSERT INTO departments (id, name, code) VALUES (?, ?, ?)').run(id, name, code);
-  res.status(201).json({ id, name, code });
+  const normalizedCode=typeof code==='string'?code.trim().toUpperCase():'';
+  if (typeof name !== 'string' || name.trim().length < 2 || name.trim().length > 100 || !/^[A-Z][A-Z0-9]{1,7}$/.test(normalizedCode)) return res.status(400).json({error:'Provide a department name (2–100 characters) and a valid department code.'});
+  if (db.prepare('SELECT id FROM departments WHERE code=? COLLATE NOCASE').get(normalizedCode)) return res.status(409).json({error:'Department code already exists.'});
+  const id = `dept-${normalizedCode.toLowerCase()}`;
+  db.prepare('INSERT INTO departments (id, name, code) VALUES (?, ?, ?)').run(id, name.trim(), normalizedCode);
+  res.status(201).json({ id, name:name.trim(), code:normalizedCode });
 });
 
 router.post('/courses', authenticate, requireRole(['System Administrator']), (req, res) => {
   const { code, title, credits, department_id } = req.body;
-  if (typeof code !== 'string' || !/^[A-Za-z0-9-]+$/.test(code) || !title?.trim() || !Number.isInteger(credits) || credits<1 || credits>30 || !db.prepare('SELECT id FROM departments WHERE id=?').get(department_id)) return res.status(400).json({error:'Valid code, title, credits and department are required.'});
-  if (db.prepare('SELECT id FROM courses WHERE code=?').get(code)) return res.status(409).json({error:'Course code already exists.'});
-  const id = `course-${code.toLowerCase()}`;
-  db.prepare('INSERT INTO courses (id, code, title, credits, department_id) VALUES (?, ?, ?, ?, ?)').run(id, code, title, credits, department_id);
-  res.status(201).json({ id, code, title, credits, department_id });
+  const normalizedCode = typeof code === 'string' ? code.trim().toUpperCase() : '';
+  const creditValue = parseCourseCredits(credits);
+  if (!/^[A-Z][A-Z0-9]{1,7}(?:-[A-Z0-9]{1,4})?$/.test(normalizedCode) || typeof title !== 'string' || title.trim().length < 3 || title.trim().length > 120 || creditValue === null || !db.prepare('SELECT id FROM departments WHERE id=?').get(department_id)) return res.status(400).json({error:`Valid course code, title (3–120 characters), department and credit value (0.5 to ${MAX_COURSE_CREDITS} in 0.5 increments) are required.`});
+  if (db.prepare('SELECT id FROM courses WHERE code=? COLLATE NOCASE').get(normalizedCode)) return res.status(409).json({error:'Course code already exists.'});
+  const id = `course-${normalizedCode.toLowerCase()}`;
+  db.prepare('INSERT INTO courses (id, code, title, credits, department_id) VALUES (?, ?, ?, ?, ?)').run(id, normalizedCode, title.trim(), creditValue, department_id);
+  res.status(201).json({ id, code:normalizedCode, title:title.trim(), credits:creditValue, department_id });
 });
 
 module.exports = router;

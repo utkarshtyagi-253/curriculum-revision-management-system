@@ -240,4 +240,47 @@ describe('Curriculum Revision Management System API Tests', () => {
     expect(adminAuditRes.statusCode).toBe(200);
     expect(adminAuditRes.body.length).toBeGreaterThan(0);
   });
+
+  test('FR-006: proposal list and detail hide records outside the user\'s workflow access', async () => {
+    const senate = await request(app).post('/api/auth/login').send({ email: 'senate@lnmiit.ac.in', password: 'Senate@123' });
+    const list = await request(app).get('/api/proposals').set('Authorization', `Bearer ${senate.body.token}`);
+    expect(list.statusCode).toBe(200);
+    expect(list.body.map(p => p.id)).not.toContain('CR-2026-014');
+    const detail = await request(app).get('/api/proposals/CR-2026-014').set('Authorization', `Bearer ${senate.body.token}`);
+    expect(detail.statusCode).toBe(404);
+    const admin=await request(app).post('/api/auth/login').send({email:'admin@lnmiit.ac.in',password:'Admin@123'});
+    const created=await request(app).post('/api/admin/users').set('Authorization',`Bearer ${admin.body.token}`).send({name:'Another Faculty',email:'another.faculty@example.org',password:'LongPassword123',department_id:'dept-cce',role_ids:['role-faculty']});
+    const other=await request(app).post('/api/auth/login').send({email:'another.faculty@example.org',password:'LongPassword123'});
+    const draft=await request(app).post('/api/proposals').set('Authorization',`Bearer ${other.body.token}`).send({proposal_type:'New Course',title:'Private draft',department_id:'dept-cce'});
+    const faculty=await request(app).post('/api/auth/login').send({email:'faculty@lnmiit.ac.in',password:'Faculty@123'});
+    const hidden=await request(app).get(`/api/proposals/${draft.body.id}`).set('Authorization',`Bearer ${faculty.body.token}`);
+    expect(hidden.statusCode).toBe(404);
+  });
+
+  test('FR-004 / FR-008: administrators can assign roles and maintain unused workflow stages', async () => {
+    const admin=await request(app).post('/api/auth/login').send({email:'admin@lnmiit.ac.in',password:'Admin@123'});
+    const auth={Authorization:`Bearer ${admin.body.token}`};
+    const created=await request(app).post('/api/admin/users').set(auth).send({name:'Demo Reviewer',email:'demo.reviewer@example.org',password:'LongPassword123',department_id:'dept-cce',role_ids:['role-faculty','role-dcc']});
+    expect(created.statusCode).toBe(201);
+    const stages=await request(app).post('/api/workflow/stages').set(auth).send({name:'Pilot Review',responsible_role:'Academic Office',permitted_actions:'Review, Forward'});
+    expect(stages.statusCode).toBe(201);
+    const removed=await request(app).delete(`/api/workflow/stages/${stages.body.id}`).set(auth);
+    expect(removed.statusCode).toBe(200);
+  });
+
+  test('FR-028 / FR-029 / FR-030: invited stakeholder feedback is scoped, email-bound and one-time', async () => {
+    const dcc=await request(app).post('/api/auth/login').send({email:'dcc@lnmiit.ac.in',password:'Dcc@123'});
+    const invite=await request(app).post('/api/stakeholder/proposals/CR-2026-020/invitations').set('Authorization',`Bearer ${dcc.body.token}`).send({email:'alumni@example.org',category:'Alumni',expiry_days:7});
+    expect(invite.statusCode).toBe(201);
+    const token=new URL(invite.body.feedback_url,'http://localhost').searchParams.get('invite');
+    const context=await request(app).get(`/api/stakeholder/invitation?token=${token}`);
+    expect(context.statusCode).toBe(200);
+    expect(context.body.title).toBe('Modern Software Engineering & DevOps Integration');
+    const invalid=await request(app).post('/api/stakeholder/invitation/feedback').send({token,email:'wrong@example.org',feedback_text:'This is a useful and carefully considered stakeholder suggestion.'});
+    expect(invalid.statusCode).toBe(403);
+    const submitted=await request(app).post('/api/stakeholder/invitation/feedback').send({token,email:'alumni@example.org',feedback_text:'This is a useful and carefully considered stakeholder suggestion.'});
+    expect(submitted.statusCode).toBe(201);
+    const reused=await request(app).get(`/api/stakeholder/invitation?token=${token}`);
+    expect(reused.statusCode).toBe(404);
+  });
 });

@@ -3,13 +3,13 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   ArrowLeft, Loader2, AlertCircle, CheckCircle, Clock, RefreshCw,
   FileText, GitBranch, History, Paperclip, Target, Send,
-  ThumbsUp, ThumbsDown, RotateCcw, ChevronRight, User, Calendar,
+  ThumbsUp, ThumbsDown, RotateCcw, ChevronRight, User, Calendar, Link2,
   Hash, Building, BookOpen, CreditCard, MessageSquare
 } from 'lucide-react'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
   getProposalById, getTimeline, compareVersions, getMilestones,
-  reviewProposal, recordDecision, submitProposal
+  reviewProposal, recordDecision, submitProposal, createStakeholderInvitation
 } from '../services/api.js'
 
 const STATUS_BADGE = {
@@ -58,6 +58,21 @@ function InfoRow({ label, value }) {
       <dd className="text-sm text-gray-900">{value || '—'}</dd>
     </div>
   )
+}
+
+function StakeholderInvites({proposalId,inviteUrl,setInviteUrl,error,setError}) {
+  const [busy,setBusy]=useState(false),[message,setMessage]=useState('')
+  async function createInvite(e) {
+    e.preventDefault(); const values=Object.fromEntries(new FormData(e.currentTarget)); setBusy(true); setError(''); setMessage('')
+    try { const result=await createStakeholderInvitation(proposalId,values); setInviteUrl(`${window.location.origin}${result.feedback_url}`); setMessage(`Invitation created for ${result.email}. Copy the link and share it with the invitee.`) }
+    catch(err) { setError(err.message || 'Could not create invitation.') }
+    finally { setBusy(false) }
+  }
+  return <div className="max-w-2xl space-y-4"><div><h3 className="font-semibold">Invite an external stakeholder</h3><p className="text-sm text-gray-500 mt-1">Invite a student, alumnus or industry expert. The link exposes proposal context only and can be submitted once before expiry.</p></div>
+    {error&&<p role="alert" className="p-3 bg-red-50 text-red-700 rounded-lg text-sm">{error}</p>}{message&&<p className="p-3 bg-green-50 text-green-800 rounded-lg text-sm">{message}</p>}
+    <form onSubmit={createInvite} className="space-y-3"><label className="block text-sm">Invitee email<input name="email" type="email" required className="mt-1 w-full border rounded-lg px-3 py-2" /></label><div className="grid sm:grid-cols-2 gap-3"><label className="block text-sm">Stakeholder category<select name="category" required className="mt-1 w-full border rounded-lg px-3 py-2"><option value="">Select category</option><option>Student</option><option>Alumni</option><option>Industry / External Expert</option></select></label><label className="block text-sm">Expires in days<select name="expiry_days" defaultValue="7" className="mt-1 w-full border rounded-lg px-3 py-2">{[1,3,7,14,30].map(n=><option key={n} value={n}>{n} days</option>)}</select></label></div><button disabled={busy} className="px-4 py-2 bg-primary-800 text-white rounded-lg disabled:opacity-50">{busy?'Creating…':'Create invitation link'}</button></form>
+    {inviteUrl&&<label className="block text-sm">One-time feedback link<input readOnly value={inviteUrl} onFocus={e=>e.target.select()} className="mt-1 w-full border rounded-lg px-3 py-2 font-mono text-xs" /></label>}
+  </div>
 }
 
 // Review form for HOD/DCC/Academic/Senate
@@ -294,6 +309,8 @@ export default function ProposalDetail({ proposalId, onBack, onEdit }) {
   const [compareV2, setCompareV2] = useState('')
   const [compareResult, setCompareResult] = useState(null)
   const [compareLoading, setCompareLoading] = useState(false)
+  const [inviteUrl,setInviteUrl]=useState('')
+  const [inviteError,setInviteError]=useState('')
 
   const load = useCallback(async () => {
     setLoading(true); setError('')
@@ -369,6 +386,7 @@ export default function ProposalDetail({ proposalId, onBack, onEdit }) {
   const canReview = ['under_review','committee_review','senate_review'].includes(proposal.status) && (userRoles.includes('admin') || userRoles.some(r=>roleNames[r] === proposal.current_responsible_role))
   const isOwner = user?.id === proposal.proposer_id || user?.id === proposal.created_by
   const isDraft = ['draft','returned_for_revision'].includes(proposal.status)
+  const canInvite=['admin','hod','dcc_reviewer','academic_office'].some(r=>userRoles.includes(r)) && !['draft','rejected'].includes(proposal.status)
 
   const TABS = [
     { id: 'overview',  label: 'Overview',   icon: BookOpen },
@@ -377,6 +395,7 @@ export default function ProposalDetail({ proposalId, onBack, onEdit }) {
     { id: 'documents', label: `Documents (${documents.length})`, icon: Paperclip },
     { id: 'milestones', label: 'Milestones', icon: Target },
     ...(canReview ? [{ id: 'action', label: 'Review Action', icon: MessageSquare }] : []),
+    ...(canInvite ? [{id:'stakeholders',label:'Stakeholder Feedback',icon:Link2}] : []),
   ]
 
   return (
@@ -599,6 +618,7 @@ export default function ProposalDetail({ proposalId, onBack, onEdit }) {
           {activeTab === 'reviews' && (
             <div className="space-y-4">
               <h3 className="font-semibold text-gray-900">Review History</h3>
+              {(proposal.stakeholder_feedback || []).map(f=><div key={f.id} className="border rounded-xl p-4 bg-blue-50"><p className="font-semibold">Stakeholder feedback · {f.author_name} {f.category?`(${f.category})`:''}</p><p className="text-xs text-gray-500 mt-1">{f.created_at?new Date(f.created_at).toLocaleString():''}</p><p className="text-sm mt-3 whitespace-pre-wrap">{f.feedback_text}</p></div>)}
               {(proposal.decisions || []).map(d=><div key={d.id} className="border rounded-xl p-4 bg-purple-50"><p className="font-semibold">{d.decision_type} · {d.recorded_by_name}</p><p className="text-sm">{d.meeting_ref} · {d.meeting_date}</p><p className="text-sm mt-2">{d.decision_reason || d.conditions || d.voting_summary}</p></div>)}
               {reviewHistory.length === 0 ? (
                 <p className="text-sm text-gray-400">No reviews yet.</p>
@@ -633,6 +653,11 @@ export default function ProposalDetail({ proposalId, onBack, onEdit }) {
                 </div>
               )}
             </div>
+          )}
+
+          {/* Documents tab */}
+          {activeTab === 'stakeholders' && (
+            <StakeholderInvites proposalId={proposalId} inviteUrl={inviteUrl} setInviteUrl={setInviteUrl} error={inviteError} setError={setInviteError} />
           )}
 
           {/* Documents tab */}

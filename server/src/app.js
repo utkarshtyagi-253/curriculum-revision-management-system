@@ -9,6 +9,8 @@ const masterDataRoutes = require('./routes/masterDataRoutes');
 const milestoneRoutes = require('./routes/milestoneRoutes');
 const auditRoutes = require('./routes/auditRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const stakeholderRoutes = require('./routes/stakeholderRoutes');
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use('/api/master-data', masterDataRoutes);
 app.use('/api/milestones', milestoneRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/stakeholder', stakeholderRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

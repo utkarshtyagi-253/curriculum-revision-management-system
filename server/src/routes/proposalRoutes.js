@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db/db');
 const { authenticate, requireRole } = require('../middleware/auth');
 const ProposalService = require('../services/proposalService');
+const { canViewProposal, requireProposalAccess } = require('../middleware/proposalAccess');
 
 // GET /api/proposals (Search & Filter - FR-042, FR-043)
 router.get('/', authenticate, (req, res) => {
@@ -18,6 +19,19 @@ router.get('/', authenticate, (req, res) => {
     WHERE 1=1
   `;
   const params = [];
+
+  // Scope proposal discovery to records the authenticated user is allowed to see.
+  const reviewerRoles = req.user.roles.filter(role => role !== 'Faculty Proposer');
+  const visibility = ["p.owner_id = ?", reviewerRoles.length ? "p.current_responsible_role IN (" + reviewerRoles.map(() => '?').join(',') + ")" : '0=1'];
+  const visibilityParams = [req.user.id, ...reviewerRoles];
+  if (req.user.roles.includes('System Administrator') || req.user.roles.includes('Academic Office')) visibility.push('1=1');
+  else {
+    visibility.push('EXISTS (SELECT 1 FROM review_actions ra WHERE ra.proposal_id=p.id AND ra.reviewer_id=?)'); visibilityParams.push(req.user.id);
+    visibility.push('EXISTS (SELECT 1 FROM decisions dc WHERE dc.proposal_id=p.id AND dc.recorded_by=?)'); visibilityParams.push(req.user.id);
+    visibility.push('EXISTS (SELECT 1 FROM feedback f WHERE f.proposal_id=p.id AND f.author_id=?)'); visibilityParams.push(req.user.id);
+  }
+  query += ` AND (${visibility.join(' OR ')})`;
+  params.push(...visibilityParams);
 
   if (search) {
     query += ' AND (p.title LIKE ? OR p.id LIKE ? OR p.affected_programmes LIKE ?)';
@@ -53,12 +67,14 @@ router.get('/', authenticate, (req, res) => {
 
 // GET /api/proposals/stats (FR-044: Status dashboard counts)
 router.get('/stats', authenticate, (req, res) => {
-  const total = db.prepare('SELECT COUNT(*) as count FROM proposals').get().count;
-  const drafts = db.prepare("SELECT COUNT(*) as count FROM proposals WHERE current_status = 'Draft'").get().count;
-  const underReview = db.prepare("SELECT COUNT(*) as count FROM proposals WHERE current_status LIKE '%Review%'").get().count;
-  const approved = db.prepare("SELECT COUNT(*) as count FROM proposals WHERE current_status = 'Approved'").get().count;
-  const returned = db.prepare("SELECT COUNT(*) as count FROM proposals WHERE current_status = 'Returned for Revision'").get().count;
-  const rejected = db.prepare("SELECT COUNT(*) as count FROM proposals WHERE current_status = 'Rejected'").get().count;
+  const reviewerRoles=req.user.roles.filter(role=>role!=='Faculty Proposer');
+  const visible = db.prepare(`SELECT DISTINCT p.id, p.current_status FROM proposals p WHERE p.owner_id=? OR ${reviewerRoles.length ? `p.current_responsible_role IN (${reviewerRoles.map(()=>'?').join(',')})` : '0=1'} OR ?=1 OR EXISTS (SELECT 1 FROM review_actions ra WHERE ra.proposal_id=p.id AND ra.reviewer_id=?) OR EXISTS (SELECT 1 FROM decisions dc WHERE dc.proposal_id=p.id AND dc.recorded_by=?)`).all(req.user.id, ...reviewerRoles, req.user.roles.some(r=>['Academic Office','System Administrator'].includes(r)) ? 1:0, req.user.id, req.user.id);
+  const total = visible.length;
+  const drafts = visible.filter(p=>p.current_status==='Draft').length;
+  const underReview = visible.filter(p=>p.current_status.includes('Review')).length;
+  const approved = visible.filter(p=>p.current_status==='Approved').length;
+  const returned = visible.filter(p=>p.current_status==='Returned for Revision').length;
+  const rejected = visible.filter(p=>p.current_status==='Rejected').length;
 
   // Pending actions for current user roles
   let pendingForRole = 0;
@@ -79,7 +95,7 @@ router.get('/stats', authenticate, (req, res) => {
 });
 
 // GET /api/proposals/:id
-router.get('/:id', authenticate, (req, res) => {
+router.get('/:id', authenticate, requireProposalAccess, (req, res) => {
   const proposal = ProposalService.getProposalById(req.params.id);
   if (!proposal) {
     return res.status(404).json({ error: 'Proposal not found' });
@@ -121,7 +137,7 @@ router.post('/:id/submit', authenticate, (req, res) => {
 });
 
 // GET /api/proposals/:id/compare (Compare versions - FR-027)
-router.get('/:id/compare', authenticate, (req, res) => {
+router.get('/:id/compare', authenticate, requireProposalAccess, (req, res) => {
   try {
     const { v1, v2 } = req.query;
     if (!v1 || !v2) {
@@ -135,7 +151,7 @@ router.get('/:id/compare', authenticate, (req, res) => {
 });
 
 // POST /api/proposals/:id/documents (Upload supporting document - FR-013)
-router.post('/:id/documents', authenticate, (req, res) => {
+router.post('/:id/documents', authenticate, requireProposalAccess, (req, res) => {
   try {
     const proposal = db.prepare('SELECT * FROM proposals WHERE id=?').get(req.params.id);
     if (!proposal || proposal.owner_id !== req.user.id || !['Draft','Returned for Revision'].includes(proposal.current_status)) return res.status(403).json({error:'Only the owner can attach documents to editable proposals.'});
@@ -155,7 +171,7 @@ router.post('/:id/documents', authenticate, (req, res) => {
 });
 
 // GET /api/proposals/:id/timeline (Proposal Timeline - FR-045)
-router.get('/:id/timeline', authenticate, (req, res) => {
+router.get('/:id/timeline', authenticate, requireProposalAccess, (req, res) => {
   const events = db.prepare(`
     SELECT ae.*, u.name as actor_name
     FROM audit_events ae
