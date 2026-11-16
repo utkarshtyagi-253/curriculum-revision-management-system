@@ -20,7 +20,7 @@ A role-based platform for proposing, reviewing, approving, versioning and implem
 | Yash | 24UCC099 | Testing — prepare test cases, validate workflows and report defects to ensure software quality. |
 | Mehul | 24UCC100 | Development lead — coordinate implementation, guide development and integrate application components. |
 
-## Assignment deliverables through Assignment 05
+## Assignment deliverables through Assignment 06
 
 | Assignment | Focus | Deliverable |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ Curriculum revisions often rely on scattered email threads, spreadsheets, meetin
 | System Administrator | View workflow configuration, manage departments/courses and inspect audits |
 | Invited students, alumni and industry | Submit contextual feedback through expiring, proposal-scoped invitation links |
 
-## Assignment 05 application
+## Project application
 
 The React application provides:
 

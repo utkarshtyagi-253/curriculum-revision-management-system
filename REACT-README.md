@@ -1,6 +1,6 @@
-# React application (Assignment 05)
+# React application
 
-The implementation uses React 19 and Vite, an Express API and SQLite. The API implements the submission, review, decision and pending-action interactions in Assignment 05. The Python prototype remains available separately.
+The project application uses React 19 and Vite, an Express API and SQLite to support proposal submission, review, committee decisions, implementation tracking and pending actions. The earlier Python prototype remains available separately.
 
 ## Run locally
 
