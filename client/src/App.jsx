@@ -203,6 +203,7 @@ function Breadcrumb({ page, onNavigate, proposalId }) {
     'pending-reviews': 'Pending Reviews',
     'notifications':   'Notifications',
     'audit':           'Audit Log',
+    'administration':  'Administration',
   }
 
   if (page !== 'dashboard') {

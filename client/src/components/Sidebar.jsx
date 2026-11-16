@@ -9,7 +9,9 @@ import {
   ChevronRight,
   BookOpen,
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext.jsx'
+import { getNotifications } from '../services/api.js'
 
 const ALL_ITEMS = [
   {id:'administration',label:'Administration',icon:ShieldCheck,roles:['admin']},
@@ -59,6 +61,23 @@ const ALL_ITEMS = [
 
 export default function Sidebar({ currentPage, onPageChange, collapsed, onToggle }) {
   const { user } = useAuth()
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (!user) return
+    let cancelled = false
+    async function fetchUnread() {
+      try {
+        const data = await getNotifications()
+        if (cancelled) return
+        const arr = Array.isArray(data) ? data : data.notifications || []
+        setUnreadCount(arr.filter(n => !n.is_read && !n.read).length)
+      } catch { /* silent */ }
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 60000)
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [user?.id])
 
   const visibleItems = ALL_ITEMS.filter(item => {
     if (!item.roles) return true
@@ -83,7 +102,7 @@ export default function Sidebar({ currentPage, onPageChange, collapsed, onToggle
                   onClick={() => onPageChange(item.id)}
                   aria-label={item.label}
                   title={item.label}
-                  className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  className={`relative flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
                       ? 'bg-primary-50 text-primary-700 border border-primary-200'
                       : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
@@ -93,6 +112,11 @@ export default function Sidebar({ currentPage, onPageChange, collapsed, onToggle
                   {!collapsed && <span className="truncate">{item.label}</span>}
                   {item.id === 'new-proposal' && !collapsed && (
                     <span className="ml-auto text-xs bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full font-semibold">New</span>
+                  )}
+                  {item.id === 'notifications' && unreadCount > 0 && (
+                    <span className={`${collapsed ? 'absolute top-1 right-1' : 'ml-auto'} min-w-[18px] h-[18px] flex items-center justify-center text-[10px] font-bold bg-red-500 text-white rounded-full px-1`}>
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
                   )}
                 </button>
               </li>

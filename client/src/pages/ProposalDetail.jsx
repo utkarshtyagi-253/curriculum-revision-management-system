@@ -17,10 +17,12 @@ const STATUS_BADGE = {
   submitted:              'bg-blue-100 text-blue-700 border-blue-200',
   under_review:           'bg-blue-100 text-blue-700 border-blue-200',
   committee_review:       'bg-purple-100 text-purple-700 border-purple-200',
+  senate_review:          'bg-violet-100 text-violet-700 border-violet-200',
   approved:               'bg-green-100 text-green-700 border-green-200',
   conditionally_approved: 'bg-teal-100 text-teal-700 border-teal-200',
   returned_for_revision:  'bg-amber-100 text-amber-700 border-amber-200',
   rejected:               'bg-red-100 text-red-700 border-red-200',
+  implemented:            'bg-emerald-100 text-emerald-700 border-emerald-200',
 }
 
 function StatusBadge({ status, large }) {
@@ -672,38 +674,56 @@ export default function ProposalDetail({ proposalId, onBack, onEdit }) {
           {activeTab === 'milestones' && (
             <div className="space-y-4">
               <h3 className="font-semibold text-gray-900">Implementation Milestones</h3>
-              {userRoles.includes('academic_office') && ['approved','conditionally_approved','implemented'].includes(proposal.status) && <MilestoneEditor proposal={proposal} milestones={milestones} onRefresh={load} />}
+              {userRoles.includes('academic_office') && ['approved','conditionally_approved','implemented'].includes(proposal.status) && (
+                <MilestoneEditor proposal={proposal} milestones={milestones} onRefresh={load} />
+              )}
               {milestones.length === 0 ? (
-                <p className="text-sm text-gray-400">No milestones defined yet.</p>
+                <p className="text-sm text-gray-400 italic py-4 text-center">No milestones defined yet.</p>
               ) : (
                 <div className="space-y-3">
-                  {milestones.map((m, i) => (
-                    <div key={i} className="flex items-start gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                        m.status === 'Completed' ? 'bg-green-100 text-green-600' :
-                        m.status === 'In Progress' ? 'bg-blue-100 text-blue-600' :
-                        'bg-gray-100 text-gray-400'
-                      }`}>
-                        {m.status === 'Completed' ? <CheckCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">{m.title || m.name || `Milestone ${i + 1}`}</p>
-                        {m.description && <p className="text-xs text-gray-500 mt-1">{m.description}</p>}
-                        <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                          {m.target_date && <span>Due: {new Date(m.target_date).toLocaleDateString()}</span>}
-                          {m.status && (
-                            <span className={`px-2 py-0.5 rounded-full font-medium ${
-                              m.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                              m.status === 'In Progress' ? 'bg-blue-100 text-blue-700' :
-                              'bg-gray-100 text-gray-600'
+                  {milestones.map((m, i) => {
+                    const isOverdue = m.target_date && m.status !== 'Completed' && new Date(m.target_date) < new Date()
+                    const statusConfig = {
+                      'Completed':   { dot: 'bg-green-500', border: 'border-green-200 bg-green-50', iconCls: 'bg-green-100 text-green-600' },
+                      'In Progress': { dot: 'bg-blue-500',  border: 'border-blue-200 bg-blue-50',   iconCls: 'bg-blue-100 text-blue-600'  },
+                      'Delayed':     { dot: 'bg-red-500',   border: 'border-red-200 bg-red-50',      iconCls: 'bg-red-100 text-red-600'    },
+                    }[m.status] || { dot: 'bg-gray-300', border: isOverdue ? 'border-red-200 bg-red-50' : 'border-gray-100 bg-gray-50', iconCls: 'bg-gray-100 text-gray-400' }
+                    return (
+                      <div key={m.id || i} className={`flex items-start gap-4 p-4 rounded-xl border ${statusConfig.border}`}>
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${statusConfig.iconCls}`}>
+                          {m.status === 'Completed'
+                            ? <CheckCircle className="w-4 h-4" />
+                            : <Clock className="w-4 h-4" />
+                          }
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{m.title || m.name || `Milestone ${i + 1}`}</p>
+                          {m.description && <p className="text-xs text-gray-500 mt-0.5">{m.description}</p>}
+                          <div className="flex flex-wrap items-center gap-3 mt-2">
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border ${
+                              m.status === 'Completed'   ? 'bg-green-100 text-green-700 border-green-200' :
+                              m.status === 'In Progress' ? 'bg-blue-100 text-blue-700 border-blue-200'   :
+                              m.status === 'Delayed'     ? 'bg-red-100 text-red-700 border-red-200'      :
+                              'bg-gray-100 text-gray-600 border-gray-200'
                             }`}>
-                              {m.status.replace(/_/g, ' ')}
+                              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                              {m.status?.replace(/_/g, ' ') || 'Not Started'}
                             </span>
-                          )}
+                            {m.target_date && (
+                              <span className={`flex items-center gap-1 text-xs ${isOverdue ? 'text-red-600 font-medium' : 'text-gray-400'}`}>
+                                <Calendar className="w-3 h-3" />
+                                Due {new Date(m.target_date).toLocaleDateString()}
+                                {isOverdue && ' — OVERDUE'}
+                              </span>
+                            )}
+                            {m.evidence_reference && (
+                              <span className="text-xs text-gray-500 italic">Evidence: {m.evidence_reference}</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
