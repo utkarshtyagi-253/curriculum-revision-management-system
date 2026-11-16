@@ -118,7 +118,7 @@ export function getPendingActions() {
 export function reviewProposal(id, data) {
   return request(`/workflow/proposals/${id}/review`, {
     method: 'POST',
-    body: JSON.stringify({...data, action_type: {recommend_forward:'Recommend/Forward',recommend:'Recommend/Forward',forward:'Recommend/Forward',return_for_revision:'Return for Revision',returned_for_revision:'Return for Revision'}[data.action_type] || data.action_type, reason:data.reason || data.comment}),
+    body: JSON.stringify({...data, action_type: {recommend_forward:'Recommend/Forward',recommend:'Recommend/Forward',forward:'Recommend/Forward',forward_to_senate:'Forward to Senate',return_for_revision:'Return for Revision',returned_for_revision:'Return for Revision'}[data.action_type] || data.action_type, reason:data.reason || data.comment}),
   })
 }
 

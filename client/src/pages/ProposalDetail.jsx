@@ -85,6 +85,7 @@ function ReviewForm({ proposalId, userRoles, proposalStatus, responsibleRole, on
   const [success, setSuccess]       = useState('')
 
   const isCommittee = ['DCC Reviewer','Senate / Academic Council'].includes(responsibleRole)
+  const isAcademicOffice = responsibleRole === 'Academic Office'
 
   // Decision form fields
   const [decisionType, setDecisionType]     = useState('')
@@ -226,7 +227,7 @@ function ReviewForm({ proposalId, userRoles, proposalStatus, responsibleRole, on
           </button>
         </div>
       ) : (
-        /* Reviewer (HOD / DCC) form */
+        /* Reviewer (HOD / Academic Office) form */
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-4">
           <h3 className="font-semibold text-blue-800 flex items-center gap-2">
             <MessageSquare className="w-4 h-4" /> Submit Review
@@ -236,7 +237,9 @@ function ReviewForm({ proposalId, userRoles, proposalStatus, responsibleRole, on
             <label className="block text-sm font-medium text-gray-700 mb-2">Action <span className="text-red-500">*</span></label>
             <div className="flex flex-wrap gap-2">
               {[
-                { value: 'recommend_forward', label: 'Recommend & Forward', Icon: ThumbsUp, color: 'green' },
+                isAcademicOffice
+                  ? { value: 'forward_to_senate', label: 'Forward to Senate', Icon: Send, color: 'green' }
+                  : { value: 'recommend_forward', label: 'Recommend & Forward', Icon: ThumbsUp, color: 'green' },
                 { value: 'return_for_revision', label: 'Return for Revision', Icon: RotateCcw, color: 'amber' },
                 
               ].map(opt => {
