@@ -155,29 +155,123 @@ pytest -v
 ## Repository structure
 
 ```text
-curriculum-revision-management-system/
-├── .github/workflows/ci.yml        # Python CI
+utkarshtyagi-253-curriculum-revision-management-system/
+├── README.md
+├── DEPLOYMENT.md
+├── REACT-README.md
+├── render.yaml
+├── requirements.txt
+├── .env.example
+├── .node-version
+├── client/
+│   ├── index.html
+│   ├── package.json
+│   ├── postcss.config.js
+│   ├── tailwind.config.js
+│   ├── vite.config.js
+│   └── src/
+│       ├── App.jsx
+│       ├── main.jsx
+│       ├── styles.css
+│       ├── components/
+│       │   ├── Navbar.jsx
+│       │   ├── ProposalTools.jsx
+│       │   └── Sidebar.jsx
+│       ├── context/
+│       │   └── AuthContext.jsx
+│       ├── pages/
+│       │   ├── Administration.jsx
+│       │   ├── AuditLog.jsx
+│       │   ├── Dashboard.jsx
+│       │   ├── InvitationFeedback.jsx
+│       │   ├── Login.jsx
+│       │   ├── Notifications.jsx
+│       │   ├── PendingReviews.jsx
+│       │   ├── ProposalDetail.jsx
+│       │   ├── ProposalForm.jsx
+│       │   └── ProposalList.jsx
+│       └── services/
+│           └── api.js
 ├── docs/
-│   ├── assignment-01/             # Project definition
-│   ├── requirements/              # SRS and system context
-│   ├── assignment-03/             # Scenarios, use cases and activities
-│   ├── assignment-04/             # Classes, objects and relationships
-│   ├── assignment-05/             # Collaboration, states and components
-│   ├── assignment-06/             # Test cases, execution, evidence and RTM
-│   └── pdf/                       # Earlier submission PDFs
-├── client/                        # React/Vite frontend
+│   ├── assignment-01/
+│   │   └── Project-Definition.md
+│   ├── assignment-03/
+│   │   └── Scenario-Use-Case-Activity-Modelling.md
+│   ├── assignment-04/
+│   │   └── Classes-Object-Diagram-Relationships.md
+│   ├── assignment-05/
+│   │   └── Collaboration-State-Component-Modelling.md
+│   ├── assignment-06/
+│   │   ├── Testing-Plan-Execution-RTM.md
+│   │   └── evidence/
+│   │       ├── client-build-results.txt
+│   │       └── server-test-results.txt
+│   └── requirements/
+│       └── SRS-v1.0.md
+├── scripts/
+│   └── seed_data.py
 ├── server/
-│   ├── src/                       # Express routes, services and SQLite database
-│   └── tests/                     # API and Assignment 05 regression tests
-├── src/                           # Earlier FastAPI prototype
-├── tests/                         # Python tests
-├── scripts/seed_data.py            # Python seed script
-├── T017_assignment05.pdf           # Assignment 05 submission
-├── render.yaml                    # Render deployment configuration
-├── DEPLOYMENT.md                   # Deployment guide
-├── REACT-README.md                 # Detailed React application guide
-├── requirements.txt               # Python dependencies
-└── README.md
+│   ├── package.json
+│   ├── scripts/
+│   │   └── run-tests.cjs
+│   ├── src/
+│   │   ├── app.js
+│   │   ├── server.js
+│   │   ├── db/
+│   │   │   ├── db.js
+│   │   │   └── seed.js
+│   │   ├── domain/
+│   │   │   ├── credits.js
+│   │   │   └── dates.js
+│   │   ├── middleware/
+│   │   │   ├── auth.js
+│   │   │   └── proposalAccess.js
+│   │   ├── routes/
+│   │   │   ├── adminRoutes.js
+│   │   │   ├── auditRoutes.js
+│   │   │   ├── authRoutes.js
+│   │   │   ├── masterDataRoutes.js
+│   │   │   ├── milestoneRoutes.js
+│   │   │   ├── notificationRoutes.js
+│   │   │   ├── proposalRoutes.js
+│   │   │   ├── stakeholderRoutes.js
+│   │   │   └── workflowRoutes.js
+│   │   └── services/
+│   │       ├── committeeService.js
+│   │       ├── proposalService.js
+│   │       ├── reminderService.js
+│   │       └── workflowService.js
+│   └── tests/
+│       ├── api.test.js
+│       ├── assignment05.test.js
+│       ├── assignment06.test.js
+│       └── domainValidation.test.js
+├── src/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── database.py
+│   ├── main.py
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── auth.py
+│   │   ├── master_data.py
+│   │   └── proposals.py
+│   ├── models/
+│   │   └── __init__.py
+│   ├── schemas/
+│   │   └── __init__.py
+│   └── services/
+│       ├── audit_service.py
+│       ├── auth_service.py
+│       ├── proposal_service.py
+│       └── workflow_service.py
+├── tests/
+│   ├── test_auth.py
+│   ├── test_proposals.py
+│   └── test_workflow.py
+└── .github/
+    └── workflows/
+        └── ci.yml
 ```
 
 ## Implementation scope
